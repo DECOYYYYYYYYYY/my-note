@@ -333,6 +333,8 @@ super关键字：
 
   这种情况是标记接口最初的目的，实现标记接口的类不需要定义任何接口方法(因为标记接口根本就没有方法)，但是该类通过多态性变成一个接口类型。
 
+函数式接口：有且只有一个抽象方法，但可以有多个非抽象方法的接口
+
 ### 枚举
 
 是一个特殊的类，表示一组常量
@@ -373,7 +375,61 @@ public class Test{
 }
 ```
 
+## 注解
 
+> 注解是附加在代码中的一些元信息，用于一些工具在编译、运行时进行解析和使用，起到说明、配置的功能
+>
+> 注解传值：
+>
+> - 简单传值：`@...(值)` 将值传给value属性
+> - 完整传值：`@...(属性名1=值1, 属性名2=值2)` 传给指定属性
+
+### 标准注解
+
+- `@Override`：标记一个方法为重写方法
+- `@Deprecated`：标记类、成员、方法已废弃、过时，在编译时发出警告
+- `@SuppressWarnings("警告类型")`：关闭对类、方法、成员编译时产生的警告
+  - 指定多个警告类型：`@SuppressWarnings(value={"...", "..."}) `
+  - 可选警告类型：
+    - `deprecation`：使用了过时方法的警告
+    - `unchecked`：执行了未检查的转换时的警告
+    - `fallthrough`：Switch语句直接通往下一个情况而没有Break的警告
+    - `path`：类路径、源文件路径有不存在路径的警告
+    - `serial`：在可序列化的类上缺少serialVersionUID定义时的警告
+    - `finally`：任何finally子句不能正常完成时的警告
+    - `all`：所有警告
+- `@FunctionalInterface`：标记接口是函数式接口，JDK8+
+
+### 元注解
+
+用于修饰注解的注解
+
+- `@Retention(RetentionPolicy的枚举值)`：标记注解在哪个级别可用
+  - `RetentionPolicy.SOURCE` 源代码中、`.CLASS` 默认值，类文件中、`.RUNTIME` 运行时
+- `@Documented`：生成文档信息时保留注解
+- `@Target(ElementType的枚举值 或 {多个值})`：标记注解的使用范围
+  - `.TYPE`：应用于类、接口（包括注解类型）、枚举
+  - `.CONSTRUCTOR`：应用于构造函数
+  - `.PARAMETER`：应用于方法的参数
+  - `.FIELD`：应用于字段或属性
+  - `.METHOD`：应用于方法
+  - `.PACKAGE`：应用于包
+  - `.LOCAL_VARIABLE`：应用于局部变量
+  - `.TYPE_PARAMETER`：v1.8+，应用于类型变量
+  - `.TYPE_USE`：v1.8+，应用于任何类型的语句中
+- `@Inherited`：标记子类自动继承父类中的该注解
+- `@Repeatable`：标记注解可以重复使用
+
+### 自定义注解
+
+```
+// 元注解
+public @interface 注解名称{
+    // 属性列表
+}
+```
+
+与创建一个接口相似，但是注解的interface关键字需要以@符号开头
 
 ## 方法
 
@@ -655,6 +711,20 @@ public class fileStreamTest {
 
 - `BufferedInputStream(FileInputStream实例)`  缓冲加速输入流
 - `BufferedOutputStream(...)` 缓冲加速输出流
+
+流的复制工具：
+
+```xml
+<dependency>
+    <groupId>commons-io</groupId>
+    <artifactId>commons-io</artifactId>
+    <version>2.6</version>
+</dependency>
+```
+
+```java
+IOUtils.copy(fis,os); // fis:输入流, os:输出流
+```
 
 
 

@@ -29,15 +29,21 @@ https://segmentfault.com/a/1190000013582912
 
 ## 生命周期
 
-maven软件构建的生命周期：清除→编译→测试→报告→打包（jarwar）→安装→部署
+maven对项目构建的生命周期划分：
 
-生命周期命令：
+* clean ：清除。
+* default ：核心工作，包含编译→测试→报告→打包→安装
+* site ： 产生报告，发布站点等。这套声明周期一般不会使用
+
+生命周期常用命令：
+
+> 在同一套生命周期内，执行后面的命令，前面的所有命令会自动执行：执行install时，会依次执行mvn compile、mvn test、mvn package、mvn install
 
 - `mvn clean`：删除编译好的项目信息（target目录）
 - `mvn compile`：编译项目（将src/main的代码编译，放置在target目录下）
 - `mvn test`
 - `mvn package`
-- `mvn install`：执行mvn compile、mvn test、mvn package所做的工作
+- `mvn install`
 
 ## pom.xml
 
@@ -52,6 +58,17 @@ project节点内的节点：
 - `<version>0.0.1-SNAPSHOT</version>` 必须项，项目版本号
   - maven坐标：使用groupId、artifactId和version来唯一确定一个项目
 - `<dependencies></dependencies>` 依赖
+- `<packaging>war</packaging>` 设置打包方式为war包格式（默认为jar包）
+
+  - 若报错需添加插件：
+
+    ```xml
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-war-plugin</artifactId>
+    <version>3.3.1</version>
+    ```
+
+- `<build></build>` 部署
 
 ## 依赖管理
 
@@ -72,5 +89,50 @@ project节点内的节点：
 </dependency>
 ```
 
-- scope节点：可取值有test、compile等。默认值为complie。
-  - test范围的依赖不会包含在发布的jar包中
+- scope节点：指定该依赖的作用范围，默认值为compile
+
+  | **依赖范围** | 编译classpath | 测试classpath | 运行classpath | 例子              |
+  | ------------ | ------------- | ------------- | ------------- | ----------------- |
+  | **compile**  | Y             | Y             | Y             | logback           |
+  | **test**     | -             | Y             | -             | Junit             |
+  | **provided** | Y             | Y             | -             | servlet-api       |
+  | **runtime**  | -             | Y             | Y             | jdbc驱动          |
+  | **system**   | Y             | Y             | -             | 存储在本地的jar包 |
+
+  
+
+## 插件
+
+格式：在build节点下添加
+
+```xml
+<plugins>
+    <plugin>
+        <groupId>...</groupId>
+        <artifactId>...</artifactId>
+        <version>...</version>
+        <configuration>可选的配置项</configuration>
+    </plugin>
+</plugins>
+```
+
+常见插件：
+
+- Tomcat插件：由maven集成tomcat
+
+  ```xml
+  <groupId>org.apache.tomcat.maven</groupId>
+  <artifactId>tomcat7-maven-plugin</artifactId>
+  <version>2.2</version>
+  <configuration>
+  	<port>端口号，默认为8080</port>
+      <path>访问路径</path>
+  </configuration>
+  ```
+  
+
+## IDEA相关
+
+快捷执行命令：插件市场内安装Maven Helper插件，在选中项目右键，可以通过Run Maven执行命令
+
+快捷导入jar包坐标：pom.xml中按alt+insert，选择Dependency，搜索并选中坐标
