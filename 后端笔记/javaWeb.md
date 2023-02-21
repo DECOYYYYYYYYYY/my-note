@@ -91,6 +91,26 @@ JavaWeb 三大组件(Servlet、Filter、Listener)
 
 一般JavaWeb项目会被打成war包，将war包放入webapps目录下，Tomcat会自动解压war包
 
+### maven插件
+
+需同时指定`<packaging>war</packaging>`
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.tomcat.maven</groupId>
+            <artifactId>tomcat7-maven-plugin</artifactId>
+            <version>2.2</version>
+            <configuration>
+                <port>端口号，默认为8080</port>
+                <path>访问路径</path>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+```
+
 ### IDEA相关配置
 
 xxx.war和 xxx.war exploded这两种部署项目模式的区别
@@ -111,7 +131,6 @@ xxx.war和 xxx.war exploded这两种部署项目模式的区别
 > Servlet类由web服务器（tomcat）创建，Servlet方法由web服务器调用
 >
 > https://www.zhihu.com/question/321913492
->
 
 ### 基本程序结构
 
@@ -159,7 +178,7 @@ WebServlet：（servlet v3+）给Servlet类添加注解 `@WebServlet("/访问路
   - 精确匹配：`/user/select`
   - 目录匹配：`/user/*`
   - 扩展名匹配：`*.txt`
-  - 任意匹配：`/*` 或 `/`（`/`会覆盖tomcat的defaultServlet，无法访问静态 ）
+  - 任意匹配：`/*` 或 `/`（`/`会覆盖tomcat的defaultServlet，无法访问静态资源）
 - `loadOnStartup: int = -1`：指定Servlet对象的创建时机
   - 若值为负整数，则在第一次访问时创建；为0或正整数，则在服务器启动时创建，数字越小优先级越高
 
@@ -259,15 +278,15 @@ request对象的方法：
 - 获取指定请求参数（GET）：`zhangsan`
 
   ```java
-  String getParameter(name:String)
+  String getParameter(String name)
   ```
-  
+
 - 获取指定请求头：
 
   ```java
   String getHeader(String name)
   ```
-  
+
 - 获取请求体数据（POST）：
 
   ```java
@@ -517,4 +536,3 @@ public class ContextLoaderListener implements ServletContextListener {
     }
 }
 ```
-

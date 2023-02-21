@@ -16,11 +16,13 @@
   - 访问越界元素时，用联合类型替代。例：赋值给索引`3`的元素，其类型需为`(string | number)`
 - 枚举：为一组数值赋予名字见[枚举](##枚举)
 - Any：`any`。类型检查器不对值进行检查
+- Unknown：`unknown`。比any更安全，只能赋给unknown和any
 - Void：`void`。表示没有任何类型，只能为它赋`undefined`和`null`
 - `null`与`undefined`：
-  - 默认情况下，`null`和`undefined`是所有类型的子类型。可以把它们赋给任何类型的变量。
-  - 若指定`--strictNullChecks`标记，`null`和`undefined`只能赋值给`void`和它们自身
+  - 默认情况下，`null`和`undefined`是所有类型的子类型。可以把它们赋给任何类型的变量。若指定`--strictNullChecks`标记，`null`和`undefined`只能赋值给`void`和它们自身
 - Never：`never`。表示永不存在值的类型
+  - 用于类型限制：在switch语句的default中，将联合类型变量赋给一个never变量。若case中没有完全列举联合类型的所有类型，则会报错。
+  - 用于函数：该函数无返回值，一般会抛出异常
 - Object：`object`。表示非原始类型，即除`number`，`string`，`boolean`，`symbol`，`null`或`undefined`之外的类型
 - 类型断言：向编译器断定某个值的类型
   1. 尖括号语法：`<string>value`
@@ -84,11 +86,31 @@ x = y;
   - 只比较实例部分的成员，不比较静态成员和构造函数
   - 若目标类型有私有/受保护成员，源类型必须包含来自同一个类的私有/受保护成员
 
+### 类型检查
+
+忽略类型检查：
+
+- 忽略下一行：
+
+  ```js
+  // @ts-ignore
+  ```
+
+- 忽略全文：
+
+  ```js
+  // @ts-nocheck
+  ```
+
+- 取消忽略全文
+
+  ```js
+  // @ts-check
+  ```
+
 ## 变量声明
 
-```
-let a: number = 1` 声明变量a，并设置a的类型为`number
-```
+`let a: number = 1` 声明变量a，并设置a的类型为`number`
 
 - 若声明和赋值同时进行，且没有指定类型，则默认把值的类型作为变量的类型
 - 隐式any：若声明时不赋值不指定类型，则默认视为any
@@ -222,6 +244,44 @@ class AnalogClock implements ClockInterface {
 let analog = createClock(AnalogClock, 7, 32);
 ```
 
+
+
+例子：
+
+```ts
+interface ParseTreeNodeConstructorObj {
+    text: string | null;
+    parent: ParseTreeNode | null;
+    type?: string;
+    props?: anyObj;
+    children?: Array<ParseTreeNode | string>;
+}
+
+class ParseTreeNode {
+    text;
+    parent;
+    type;
+    props;
+    children; // 构造函数中，该属性有默认值，根据自动类型推导，会剔除undefined类型
+
+    constructor({
+        text,
+        parent,
+        type,
+        props = {},
+        children = [],
+    }: ParseTreeNodeConstructorObj) {
+        this.text = text;
+        this.parent = parent;
+        this.type = type;
+        this.props = props;
+        this.children = children;
+    }
+}
+```
+
+
+
 ### 接口继承
 
 ```typescript
@@ -297,6 +357,23 @@ interface Cloner {
   - 构造函数标记为 `protected`：这个类不能在包含它的类外被实例化，但是能被继承。
 - `readonly`：属性为只读，必须在声明时或构造函数里被初始化
 - 在构造函数形参前，添加一个访问限定符可以进行成员声明
+
+### 对象
+
+对象的类型描述：
+
+- 通过接口描述
+
+- 通过字面量描述
+
+  ```ts
+  type Props = {
+      name: string;
+      age: number;
+  };
+  ```
+
+
 
 ### 抽象类
 
@@ -395,9 +472,7 @@ let myAdd: (x: number, y: number) => number =
 
 剩余参数：用法同rest参数
 
-```
-this`参数：`this`参数是个假的参数，它定义在参数列表的最前面，用于指示`this`的类型。`fn(this: 类型)
-```
+`this`参数：`this`参数是个假的参数，它定义在参数列表的最前面，用于指示`this`的类型。`fn(this: 类型)`
 
 ### 重载
 
@@ -642,9 +717,7 @@ else {
 
 ### 类型别名
 
-```
-type 别名 = 任何类型;
-```
+`type 别名 = 任何类型;`
 
 类型别名也可以是泛型：`type Container<T> = { value: T };`
 
@@ -786,10 +859,27 @@ type Record<K extends string, T> = {
 预定义的条件类型：（已被包含进了ts标准库中）
 
 - `Readonly<T>`、 `Partial<T>`、`Pick`、`Record`
+
 - `Exclude<T, U>` -- 从`T`中剔除可以赋值给`U`的类型。
+
 - `Extract<T, U>` -- 提取`T`中可以赋值给`U`的类型。
+
 - `NonNullable<T>` -- 从`T`中剔除`null`和`undefined`。
+
+- `Omit<T, K extends keyof any>`：从接口T中剔除K所描述的属性
+
+  ```ts
+  interface Person {
+    name: string;
+    age: number;
+    address: string;
+  }
+  type WithoutAge = Omit<Person, 'age'>; // 移除age属性
+  type WithoutAgeAndAddress = Omit<Person, 'age' | 'address'>; // 移除多个属性
+  ```
+
 - `ReturnType<T>` -- 获取函数返回值类型。
+
 - `InstanceType<T>` -- 获取构造函数类型的实例类型。
 
 ### 类型声明
@@ -818,7 +908,7 @@ declare namespace $ {...};
 
 ## 模块
 
-`import type` 类似import，仅导入类型
+`import type` 类似import，仅导入类型，在运行时不存在
 
 
 

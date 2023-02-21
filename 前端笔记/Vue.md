@@ -452,10 +452,14 @@ Vue会监测data中所有层次的数据：**不允许动态为data添加属性*
         - `arg`：传给指令的参数，可选。例： `v-xx:foo` 中，参数为 `"foo"`
         - `modifiers`：一个包含修饰符的对象。例如：`v-xx.foo.bar` 中，修饰符对象为 `{ foo: true, bar: true }`
   - 函数式：`指令名(element,binding){}` 在 `bind` 或 `update` 时调用
-- `provide(){}` 依赖注入，为所有后代组件提供数据/方法
-  - 函数需要返回一个对象，数据/方法以键值对的形式存放于该对象
+- `provide: 对象或函数` 依赖注入，为所有后代组件提供数据/方法
+  - 对象式：键名作为依赖名，键值作为依赖值
+  - 函数式：函数需要返回一个对象
   - 注意：依赖注入会使得重构更加困难，且提供的 property 是**非响应式**的
-- `inject: ['属性名']` 接收依赖
+- `inject: 依赖名字符串数组 | 对象` 接收依赖
+  - 数组式：本地的绑定名即依赖名
+  - 对象式：键名为本地的绑定名，键值为依赖名字符串或Symbol
+    - 键值也可以是一个对象，其 from 属性为依赖名字符串或Symbol，其 default 属性为默认值
 - `inheritAttrs: false` 禁用组件根元素继承未被接收的prop属性
   - 不影响style和class属性
 - `model: { prop?: string, event?: string }` 为组件使用v-model时定制prop和event
@@ -608,9 +612,11 @@ HTML中使用：`<组件名></组件名>`（DOM模板中） 或  `<组件名/>`
 
 **动态组件**
 
+> 注意：ul、ol、table、select元素内部只能有li、tr、option，若需要在其元素内部防止组件，可以为li等元素指定`is`属性来渲染为组件
+
 `<component></component>` 根据is属性渲染为不同组件
 
-- is属性：`:is="已注册组件名/组件选项对象"`
+- is属性：可传入 HTML标签名字符串/已注册组件名字符串/组件选项对象
 
 `<keep-alive></keep-alive>` 包裹动态组件时，会缓存不活动的组件实例
 
@@ -863,14 +869,64 @@ Vue CLI（command line interface），即Vue脚手架。安装：`npm install -g
 注意：
 
 - `<%= BASE_URL %>`    表示public目录
+  
   - 仅`public/index.html`或其它通过`html-webpack-plugin`作模板的HTML文件有效
 - `import Vue from "vue";` 引入精简版的vue
+  
   - 无法解析template选项，需用render选项。可以解析组件的template标签
 - `import Vue from "vue/dist/vue";` 引入完整版vue
 - `<style scoped>` 让样式在组件局部生效，防止冲突
+  
   - 设置scoped之后，可以影响该组件内子组件的根元素的样式，但子组件内部元素的样式不受影响
+  
   - 使用`>>>`实现样式穿透（影响子组件），例：`div >>> .el-icon`
-    -  Sass 之类的预处理器无法解析 `>>>`，使用`/deep/`或`::v-deep`（推荐） 代替
+    
+    - Sass 之类的预处理器无法解析 `>>>`，使用`/deep/`（less）或`::v-deep`（sass） 代替
+    
+    - 注意：less中使用样式穿透时，应将样式穿透符写在子选择器前
+    
+      ```less
+      /* 正确用法 */
+      .a {
+          /deep/.b {...}
+      }
+      
+      /* 错误用法，不能正常生效 */
+      .a/deep/ {
+          .b {...}
+      }
+      ```
+    
+  - 原理：组件的style标签添加scoped后
+  
+    - 该组件模板中所有的节点和子组件根元素节点上，会被添加 `data-v-xxxx` 的唯一标识属性
+  
+    - style标签内的选择器（无样式穿透）的最后会追加一个属性选择器
+  
+      ```less
+      .a {
+      	.b {
+      		color: #fff;
+      	}
+      }
+      
+      /* less编译为css */
+      .a .b {...}
+      
+      /* 追加属性选择器 */
+      .a .b[data-v-xxxx] {...}
+      ```
+  
+    - 每个css选择器中，只有第一个样式穿透符会生效，会将属性选择器追加至样式穿透符前的选择器的末尾。
+  
+      ```css
+      .a/deep/.b {...}
+      
+      /* 样式穿透符本身将被解析为空格 */
+      /* 将编译为 */
+      .a[data-v-xxxx] .b{...}
+      ```
+  
 -  `<style lang="less"> `  指定样式所用的预处理器（需要安装loader），默认为css
 
 重要命令：
@@ -971,13 +1027,13 @@ Store实例：`new Vuex.Store({actions, mutations, state [, getters] })`
 模块化：
 
 - 创建store模块对象：`{namespaced: true, actions: {}, mutations: {}...}`
-- 创建store实例：`new Vuex.Store({modules: {模块1: 模块1, 模块2: 模块2}})`
+- 创建store实例：`new Vuex.Store({modules: {模块名1: 模块对象1, ...}})`
 - 使用时：
-  - state中需要通过`模块.属性` 进行访问
+  - state中需要通过`模块名.属性` 进行访问
   - getters中的属性名、mutations和actions中的事件名变为：`模块名/事件名`
-    - 例：`commit('模块1/事件名', value)`
-  - `mapState('模块1', ['模块1内的属性'。。。])` 需要开启模块的namespaced属性
-  - `mapMutations('模块1', {方法名: '模块1内的事件名'})` 同上
+    - 例：`commit('模块名1/事件名', value)`
+  - `mapState('模块名1', ['模块1内的属性'...])` 需要开启模块的namespaced属性
+  - `mapMutations('模块名1', {方法名: '模块1内的事件名'})` 同上
 
 
 
@@ -994,7 +1050,7 @@ src\router\index.js
 ```javascript
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-Vue.use(VueRouter) 
+Vue.use(VueRouter)
 export default new VueRouter({选项})
 ```
 
@@ -1009,10 +1065,7 @@ import router from './router'
 
 router实例：`new VueRouter({选项})`
 
-- `mode: 'history'` 指定路由模式，默认为hash模式
-  - `hash`模式：通过url中的#实现路由跳转，且不会将数据传到后端
-  - `history`模式：利用HTML5中的pushState()和replaceState()方法。它们虽然改变了当前的URL，但不会立即向后端发送请求。该模式直接刷新页面时，仍会向后端传递请求，需要在后端进行配置以确保正常使用
-- `routes: [{选项}]`
+- `routes: [{选项}]`，仅path属性为必选项
   - `name: 'xx'` 可选，命名路由
   - `path: '/xx'` 路由路径
   - `component: 组件` 对应路由组件
@@ -1029,6 +1082,21 @@ router实例：`new VueRouter({选项})`
     - 函数写法：`props($route){return{属性: 值}}`
   - `meta: 对象` 存储路由元信息
   - `beforeEnter(){}` 独享路由守卫
+- `mode: 'history'` 指定路由模式
+  - `hash`模式：浏览器环境默认值，通过url中的#实现路由跳转，且不会将数据传到后端
+  - `history`模式：利用HTML5中的pushState()和replaceState()方法。它们虽然改变了当前的URL，但不会立即向后端发送请求。该模式直接刷新页面时，仍会向后端传递请求，需要在后端进行配置以确保正常使用
+  - `abstract`模式：node环境默认值，支持所有js运行环境，如node.js服务器端
+- `base: str = '/'`：应用基路径
+- `linkActiveClass :str='router-link-active'`：router-link的active-class属性的默认值
+- `linkExactActiveClass :str='router-link-exact-active'`：router-link的exact-active-class属性的默认值
+- `scrollBehavior(to, from, savedPosition){}`：切换路由时滚动页面（hash模式下不可用）
+  - savedPosition仅当popstate 导航 (通过浏览器的 前进/后退 按钮触发) 时可用，表示保存的滚动位置信息
+  - 方法需返回滚动位置的对象：
+    - `{ x: number, y: number }`
+    - `{ selector: '锚点', offset?: { x: number, y: number }}` 锚点不带#
+  - 若方法返回空对象或假值，则不滚动
+- `parseQuery / stringifyQuery(函数)`：覆盖默认查询字符串的解析/反解析函数
+- `fallback:bool=true`：浏览器不支持 `history.pushState` 时是否回退到 `hash` 模式
 
 
 
@@ -1048,7 +1116,7 @@ router实例：`new VueRouter({选项})`
 
 
 
-路由组件的实例属性：
+实例化后，Vue实例新增属性：
 
 - `$router`：全局的路由实例，是VueRouter构造方法的实例，其方法有：
   - `push({同to的对象写法})` 以push的方式访问指定路径
@@ -1070,26 +1138,30 @@ router实例：`new VueRouter({选项})`
 路由传参：
 
 - query方式：
-  - 浏览器中路由格式：`.../一级/二级？参数1=值1&参数2=值2`
-  - 路由组件中：`this.$route.query.参数1`
+  - 浏览器中路由格式：`.../一级/二级?参数1=值1&参数2=值2`
+  - 获取：`$route.query.参数1`
 - params方式：
   - 浏览器中路由格式： `.../一级/二级/值1/值2`
-  - VueRouter中routes选项的path属性：`"二级/: 属性1/: 属性2"`
-  - 路由组件中：`this.$route.params.参数1`
+  - VueRouter中routes选项的path属性：`"二级/:属性1/:属性2"`
+    - 设置可选参数：`.../:可选属性1?/:可选属性2?`
+    - 定义正则：待补充。。。
+  - 获取：`$route.params.属性1`
+  - 使用push或replace跳转时，以name形式指定目标路由
 - props：见VueRouter中routes配置的props选项
 
 
 
 路由守卫：通常用于权限判断，下文router为VueRouter构造的实例对象
 
-- 全局前置路由守卫：`router.beforeEach(fn(to，from，next){})` 路由跳转前和初始化时被调用
+- 全局前置路由守卫：`router.beforeEach( fn(to,from,next){} )` 路由跳转前和初始化时被调用
   - `to` 与 `from` 为目标路由/原路由的路由信息对象
   - 调用`next()`进行跳转
-- 全局后置路由守卫：`router.afterEach(fn(to，from){})` 路由跳转后和初始化时被调用
-- 独享路由守卫：在routes选项中添加`beforeEnter: fn(to，from，next){}` 没有后置路由守卫
+- 全局后置路由守卫：`router.afterEach( fn(to,from){} )` 路由跳转后和初始化时被调用
+- 导航路由守卫：在routes选项中添加`beforeEnter: fn(to,from,next){}` 没有后置守卫
 - 组件内路由守卫：组件实例化时传入选项
-  - `beforeRouteEnter(to，from，next){}` 进入前
-  - `beforeRouteLeave(to，from，next){}` 离开前
+  - `beforeRouteEnter(to,from,next){}` 进入前，不能获取this
+  - `beforeRouteUpdate(to,from,next){}` 路由变更但组件被复用时
+  - `beforeRouteLeave(to,from,next){}` 离开前
 - 路由守卫执行顺序为：`beforeEach` → `beforeEnter` → `beforeRouterEnter`
 
 ### Vue Test Utils

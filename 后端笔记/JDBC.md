@@ -68,6 +68,7 @@ try {
 - 注册驱动：
 
   ```java
+  // 底层实现
   static {
       try {
           DriverManager.registerDriber(new Driver());
@@ -183,9 +184,9 @@ String getString()
   * 检查SQL语句的语法是否正确
 
   * 编译SQL语句。将SQL语句编译成可执行的函数
-    * 检查SQL和编译SQL花费的时间比执行SQL的时间还要长。
+    * 检查SQL和编译SQL花费的时间比执行SQL的时间还要长
 
-    * 开启预编译并使用preparedStatement以提高性能
+    * 开启预编译并使用preparedStatement以提高性能（仅需检查编译一次）
 
   * 执行SQL语句
 
@@ -278,31 +279,6 @@ Driud的使用：
         <artifactId>mysql-connector-java</artifactId>
         <version>5.1.46</version>
     </dependency>
-    <!--junit 单元测试-->
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.13</version>
-        <scope>test</scope>
-    </dependency>
-    <!-- 添加slf4j日志api -->
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.20</version>
-    </dependency>
-    <!-- 添加logback-classic依赖 -->
-    <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.2.3</version>
-    </dependency>
-    <!-- 添加logback-core依赖 -->
-    <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-core</artifactId>
-        <version>1.2.3</version>
-    </dependency>
 </dependencies>
 ```
 
@@ -360,7 +336,7 @@ Driud的使用：
     	insert into tb_brand (brand_name, company_name) values (#{brandName}, #{companyName});
 	</insert>
     <update id="update">
-    	update tb_brand set brand_name = #{brandName}
+    	update tb_brand set brand_name = #{brandName};
 	</update>
     <delete id="deleteById">
     	delete from tb_brand where id = #{id};
@@ -372,7 +348,7 @@ Driud的使用：
   - id：该sql语句的唯一标识
   - resultType属性：返回的类
 - insert节点：用于插入数据
-  - 方法返回主键值：insert节点设置属性`useGeneratedKey="true" keyProperty="id"`
+  - 方法返回主键值：insert节点设置属性 `useGeneratedKey="true" keyProperty="id"`
 - update节点：用于更新数据，方法返回整数，表示受影响的行数
 - delete节点：用于删除数据
 

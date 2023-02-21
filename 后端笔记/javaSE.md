@@ -162,7 +162,9 @@ Scanner类：
 2. Scanner的实例化：`Scanner scan = new Scanner(System in);`
 3. 调用Scanner类的相关方法（`next()、nextInt()、nextFloat()...`），来获取指定类型的变量；
 
-## 数组
+## 集合
+
+### 数组
 
 数组（Array）是相同类型数据的集合。
 
@@ -187,7 +189,9 @@ Scanner类：
 
 - `int length`
 
-### Arrays工具类
+
+
+#### Arrays工具类
 
 导包：`java.util.Arrays`
 
@@ -208,6 +212,59 @@ Scanner类：
 
 
 
+### Stream流
+
+> 以声明式的方式处理数据，对stream的操作不会对源数据产生影响
+
+获取流：
+
+```java
+// List集合获取流
+Stream<String> stream1 = new ArrayList<>().add("张老三").stream();
+
+// Set集合获取流
+Stream<String> stream2 = new HashSet<>().add("张老三").stream();
+
+// Map集合获取流
+Map<Integer,String> map = new HashMap<>().put(1,"张老三");
+Stream<Integer> stream3 = map.keySet().stream(); // 根据键获取流
+Stream<String> stream4 = map.values().stream(); // 根据值获取流
+Stream<Map.Entry<Integer, String>> stream5 = map.entrySet().stream(); // 根据键值对对象获取流
+
+// 数组获取流
+String[] arr = {"张颜宇","张三","李四","赵五","刘六","王七"};
+Stream<String> stream6 = Stream.of(arr);
+```
+
+
+
+流的方法：
+
+> 函数式接口会接收一个参数，为每次迭代时流中的元素
+
+```java
+long count(); // 返回流中元素个数
+
+void forEach(函数式接口); // 逐一处理流中的元素
+
+Stream<T> filter(函数式接口); // 过滤元素，保留函数返回值为true的元素
+
+Stream<T> limit(long maxSize); // 当流的长度大于参数时，截取流至maxSize长度
+
+Stream<T> map(函数式接口); // 映射元素，将函数返回值作为新元素
+
+Stream<T> skip(long n); // 跳过前n个元素
+
+Stream<T> distinct(); // 去重，根据元素的hashCode和equals方法
+
+stream.collect(Collectors.toList()) // 将stream收集到List中
+
+public static Stream<T> concat(Stream<T> a, Stream<T> b); // 合并流，要求类型一致
+
+```
+
+
+
 ## 面向对象
 
 类方法声明：`访问权限修饰符 非访问权限修饰符 返回类型 方法名(参数类型 参数名,...)`
@@ -216,6 +273,8 @@ Scanner类：
 - 修饰符为可选项
 
 类变量声明：`访问权限修饰符 非访问权限修饰符 变量类型 变量名 = 值;`
+
+
 
 ### 修饰符
 
@@ -246,6 +305,8 @@ Scanner类：
   - 这样在任何时刻，两个不同的线程总是看到某个成员变量的同一个值。
 - `transient`：修饰类变量，序列化的对象包含被修饰的实例变量时，JVM跳过该变量
 
+
+
 ### 继承
 
 `class 子类A extends 父类B{}`
@@ -266,6 +327,8 @@ super关键字：
 
 - 类不支持多继承、接口支持多继承
 
+
+
 ### 多态
 
 重写（overriding）：子类中定义了与父类中的同名的新方法
@@ -278,6 +341,8 @@ super关键字：
 
 - 方法名必须完全相同，参数列表必须不一样
 - 在编译时确定（编译时多态）
+
+
 
 ### Object类
 
@@ -298,6 +363,8 @@ super关键字：
 - `public String toString()`对象打印时调用
   - `String`、`Date`、`File`、`包装类`等重写了该方法：返回对象的实体内容
 
+
+
 ### 抽象类
 
 抽象类不能被实例化为对象
@@ -308,6 +375,8 @@ super关键字：
 
 - 如果一个类包含抽象方法，那么该类必须是抽象类
 - 任何子类必须重写父类的抽象方法，或者声明自身为抽象类
+
+
 
 ### 接口
 
@@ -335,6 +404,8 @@ super关键字：
 
 函数式接口：有且只有一个抽象方法，但可以有多个非抽象方法的接口
 
+
+
 ### 枚举
 
 是一个特殊的类，表示一组常量
@@ -344,36 +415,59 @@ super关键字：
 - 枚举跟普通类一样可以用自己的变量、方法和构造函数，构造函数只能使用 private 访问修饰符，所以外部无法调用。
 - 枚举既可以包含具体方法，也可以包含抽象方法。 如果枚举类具有抽象方法，则枚举类的每个实例都必须实现它。
 
+
+
+创建：
+
 ```java
-enum Color { RED, GREEN, BLUE;} 
+enum Color { RED, GREEN, BLUE;}  // 未显式声明基础类型的枚举，默认基础类型为int
 
 // 使用时
 Color c1 = Color.RED; // c1的值为RED
+c1 == RED; // true
 ```
 
-- `values()` 返回枚举类中所有的值。
-- `ordinal()`方法可以找到每个枚举常量的索引，就像数组索引一样。
-- `valueOf()`方法返回指定字符串值的枚举常量。
+
+
+枚举类相关方法：
+
+- `static List<T> values()`：返回枚举类中所有的成员。
+- `static T valueOf(String value)`：返回指定字符串所对应的枚举实例。如`Color.valueOf("RED")`返回Color.RED实例
+- `ordinal()`：返回当前枚举实例的索引，与数组索引相似。
+
+
+
+自定义枚举类属性：
 
 ```java
-enum Color{
-    RED, GREEN, BLUE;
-}
- 
-public class Test{
-    public static void main(String[] args){
-        Color[] arr = Color.values(); // 调用 values()
+enum WeekDay {
+    
+    // 成员声明
+    Mon("Monday", 1),Tue("Tuesday", 2),Wed("Wednesday", 3),Thu("Thursday", 4);
+    
+    // 属性声明
+    private String day;
+    private Integer index;
+    
+    // 构造函数
+    private WeekDay(String day, Integer index) {
+        this.day = day;
+        this.index = index;
+    }
 
-        // 迭代枚举
-        for (Color col : arr){
-            System.out.println(col + " at index " + col.ordinal());  // 查看索引
-        }
-
-        // 使用 valueOf() 返回枚举常量，不存在的会报错 IllegalArgumentException
-        System.out.println(Color.valueOf("RED"));
+    // getter
+    public String getDay() {
+        return day;
+    }
+    public String getIndex() {
+        return index;
     }
 }
+
+WeekDay.Mon.getIndex(); // 结果：1
 ```
+
+
 
 ## 注解
 
@@ -436,6 +530,43 @@ public @interface 注解名称{
 可变参数：它必须是方法的最后一个参数，在该参数的类型后加`...`，参数值为由所有余下值组成的数组
 
 `finalize()`方法：在对象销毁前会调用该方法，通常格式为`protected void finalize(){}`
+
+
+
+### Lambda表达式
+
+> 函数式接口：内部有且只有一个抽象方法的接口，Lambda表达式可以创建该接口的对象
+>
+> 类型推断机制：在上下文信息足够的情况下，编译器可以推断出参数表的类型，而不需要显式指名
+
+语法格式：
+
+```java
+([类型 ]参数名, ...) -> { 执行语句 } // 完整形式
+[类型 ]参数名 -> { 执行语句 } // 只有一个参数时，可以省略括号
+([类型 ]参数名, ...) -> 表达式或单条语句 // 此时可以省略花括号，将表达式或语句的值作为返回值
+```
+
+方法引用：
+
+```java
+// 静态方法和实例方法的引用
+([变量1, 变量2, ...]) -> 类名或实例.方法名([变量1, 变量2, ...]) // 原
+类名或实例::方法名 // 简化形式
+
+// 调用了参数1的实例方法时
+(变量1[, 变量2, ...]) -> 变量1.实例方法([变量2, ...]) // 原
+变量1的类名::实例方法名 // 简化形式
+// 如：Collections.sort(list, (o1, o2) -> o1.compareTo(o2));
+// 可简化为：Collections.sort(list, Integer::compareTo);
+
+// 引用构造方法
+([变量1, 变量2, ...]) -> new 类名([变量1, 变量2, ...]) // 原
+类名::new // 简化形式
+
+```
+
+
 
 ## 内置类
 

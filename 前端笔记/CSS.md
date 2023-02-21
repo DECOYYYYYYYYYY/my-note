@@ -23,12 +23,13 @@
 
 CSS：层叠样式表，实现了结构（HTML）与样式分离
 
+
 元素显示模式：
 
 - 块元素：高度、宽度、内外边距可控制；宽度默认是父级容器宽度的100%，前后带有换行符；块级容器可以容纳任何元素（文字标签除外，不能容纳块级元素）
   - `<h1-6><p><div><ul><ol><li>`
 - 行内元素：相邻行内元素在一行上，一行可以显示多个；高宽无法直接设置；默认宽度为它本身内容的宽度；行内元素只能容纳文本或其他行内元素
-- 块元素：可和相邻的行内块元素在一行上，但之间会有空白缝隙；默认宽度为它本身内容的宽度；高度，行高，内外边距可控制。
+- 行内块元素：可和相邻的行内块元素在一行上，但之间会有空白缝隙；默认宽度为它本身内容的宽度；高度，行高，内外边距可控制。
   - `img、input、td`
 - 显示模式的转换：`display：block;` `display：inline;` `display：inline-block;`
 
@@ -147,9 +148,7 @@ focus伪类选择器：选取焦点，一般只有input才能获取
 
 #### 媒体查询选择器
 
-```
-@media 查询条件{}
-```
+`@media 查询条件{}`
 
 css选择器写在媒体查询选择器`{}`内部
 
@@ -224,11 +223,17 @@ css选择器写在媒体查询选择器`{}`内部
 - 背景图像固定：`background-attachment: scroll | fixed`  设置图片是否随其他元素一起运动，可用于实现视差滚动
 - 背景属性复合写法：`background：背景颜色 背景图片地址 背景平铺 背景图像滚动 背景图片位置;` 可以省略任意项
 
+
+
+生成图像的函数：可以直接用在background-image中
+
+- `radial-gradient([<形状>], <多个色值描述>)`：生成渐变图形
+  - 形状：默认值为 `ellipse at center ` ，表示渐变形状为椭圆，渐变中心为图形中心。可以指定渐变形状为 `circle` 等
+  - 色值描述：`<color> <position>`，例：`#ccc 0%`，表示渐变起始点的颜色为#ccc
+
 ### 空格处理
 
-```
-white-space: normal(默认) | nowrap | pre | pre-wrap | pre-line | inherit
-```
+`white-space: normal(默认) | nowrap | pre | pre-wrap | pre-line | inherit`
 
 - normal：按浏览器默认方式处理空格
 - nowrap：不因超出容器宽度而换行
@@ -257,7 +262,7 @@ white-space: normal(默认) | nowrap | pre | pre-wrap | pre-line | inherit
 
 `visibility：hidden | visible；`    占原先所在位置，触发重绘，伪株连性（可以给子孙节点设置visibility：visible可见）
 
-`pointer-events：none`        设置元素不可用（阻止hover、active触发事件，阻止js点击动作触发事件等）
+`pointer-events: none`        设置元素不可用（阻止hover、active触发事件，阻止js点击动作触发事件等）
 
 ### 多媒体属性
 
@@ -296,10 +301,9 @@ white-space: normal(默认) | nowrap | pre | pre-wrap | pre-line | inherit
 
 盒子模型`box-sizing`：
 
-```
-box-sizing: content-box` 默认，盒子大小为`width`+`padding`+`border
-box-sizing: border-box` 盒子大小为`width
-```
+`box-sizing: content-box` 默认，盒子大小为`width`+`padding`+`border`
+
+`box-sizing: border-box` 盒子大小为`width`
 
 ### 边框
 
@@ -362,9 +366,7 @@ box-sizing: border-box` 盒子大小为`width
 
 浮动元素会尽量向左或向右移动，直到左边缘或右边缘触及包含块或另一个浮动框的边缘
 
-```
-float: none(默认) | left | right);
-```
+`float: none(默认) | left | right);`
 
 浮动特性：
 
@@ -570,9 +572,7 @@ grid-template-areas:
 
 `order: 整数` 指定弹性元素的排列顺序，越小越靠前，默认值为0
 
-```
-align-self: 可选值` 设置单个元素的`align-items`，可选值同`align-items
-```
+`align-self: 可选值` 设置单个元素的`align-items`，可选值同`align-items`
 
 ## CSS3
 
@@ -582,9 +582,52 @@ align-self: 可选值` 设置单个元素的`align-items`，可选值同`align-i
 
 - 表达式中可用`+-*/`，运算符前后必须加空格。例：`width: calc(100% - 80px);` 
 
+
+
+声明全局变量：
+
+```css
+:root{ 
+  --bg-color: #cccccc;
+}
+```
+
+行内声明变量：
+
+```html
+<div style="--bg-color:#cccccc"></div>
+```
+
+使用变量：
+
+```css
+color: var(--font-color);
+```
+
+
+
 ### 滤镜
 
-`filter: blur(5px); ` 模糊处理，数值越大越模糊
+`filter: 滤镜函数; ` 为该元素添加图形效果
+
+- 多个过滤函数之间用空格分割
+
+`backdrop-filter: 滤镜函数;` 为该元素后面区域添加图形效果
+
+
+
+滤镜函数：
+
+- `filter(<长度>)`：高斯模糊，长度越大越模糊
+- `brightness(<百分比>)`：亮度调整，值越大越亮，100%为原亮度
+- `contrast(<百分比>)`：对比度调整，值越大对比度越大，100%为原始对比度
+- `drop-shadow(<x偏移>,<y偏移>,[<模糊半径>],[<color>])`：生成阴影，属性参考text-shadow
+- `grayscale(<百分比>)`：灰度调整，0%无变化，100%转为灰度图像
+- `hue-rotate(<角度>)`：色相旋转
+- `invert(<百分比>)`：图像反转，0%无变化，100%完全反转
+- `opacity(<百分比>)`：不透明度调整，0%全透明，100%无变化
+- `saturate(<百分比>)`：饱和度调整，0%完全不饱和，100%无变化
+- `sepia(<百分比>)`：转为深褐色，0%无变化，100%完全深褐色
 
 ### 过渡与动画
 
@@ -592,9 +635,7 @@ align-self: 可选值` 设置单个元素的`align-items`，可选值同`align-i
 
 为元素设置`transition`属性，指定元素变化时，会根据指定的规律变化
 
-```
-transition: 要过渡的属性 花费时间 运动曲线 触发延迟时间;
-```
+`transition: 要过渡的属性 花费时间 运动曲线 触发延迟时间;`
 
 - 要过渡的属性：若要让所有属性同时变化，写`all`关键字
 - 花费时间：必选项，单位s
@@ -606,9 +647,7 @@ transition: 要过渡的属性 花费时间 运动曲线 触发延迟时间;
 
 转换：处于标准流而不影响其他元素的位置
 
-```
-transform: 变换函数;
-```
+`transform: 变换函数;`
 
 - `translate(x值, y值)`、`translateX(值);`、`translateY(值);` 平移变换
   - translate所需值可以是像素值，也可以是百分比（参照自身宽高计算）
@@ -669,9 +708,7 @@ transform: 变换函数;
 
 z轴垂直屏幕向外为正
 
-```
-transform: 变换函数;
-```
+`transform: 变换函数;`
 
 - `translateZ(像素值);`  z方向平移，一般不用百分比
 - `translate3d(x, y, z);`  3D复合平移，不能省略xyz任意一项
@@ -698,7 +735,7 @@ transform: 变换函数;
 
 ```less
 选择器1 {
-  选择器2 {...}
+	选择器2 {...}
     &选择器3 {...}
 } // less写法
 
@@ -730,13 +767,23 @@ transform: 变换函数;
 
 - 方法一：`选择器1: extend(选择器2){...}` 将选择器2中设置的属性复制到选择器1中
   - 若在选择器2后面加上关键词all，则会把选择器2所选元素的伪类同样添加给选择器1
-- 方法二：`选择器1{选择器2();...}` 同上，mixin混合，性能较方法一差
+- 方法二：`选择器1{选择器2();...}` 同上，使用混合函数，性能较方法一差
 
 混合函数：
 
-- 定义选择器时，在选择器与`{}`之间添加`()`，表示创建一个`mixins`混合函数，仅能被混合引用，不会作为样式生效
-- 可以传递变量`.test(@w, @h){width: @w;height: @h}`
-- 传参：可按顺序传，也可按名字传：`(@h: 300px, @w: 200px)`。传递时必须严格按参数数量传递
+- 创建一个`mixins`混合函数：函数名以`.`开头，括号内可接收形参，仅能被混合引用，不会作为样式生效
+
+  ```css
+  .test(@w, @h) when(...) {}
+  ```
+
+- 使用混合函数：将混合函数内的选择器解包在调用函数的位置
+
+  ```less
+  // 传参时必须严格按参数数量传递
+  .test(200px, 300px); // 按顺序传参
+  .test(@h: 300px, @w: 200px); // 按名字传参
+  ```
 
 函数：
 
@@ -745,6 +792,19 @@ transform: 变换函数;
 - `percentage(数字)` 将数字换为百分比数
 
 循环：用递归实现
+
+```less
+.generate(@num) {
+    .sub(@count) when(@count>0) {
+        .test-@{count} {
+            background-color: red;
+        }
+        .sub(@count - 1);
+    }
+    .sub(@num);
+}
+.generate(24);
+```
 
 媒体查询：
 
@@ -757,6 +817,74 @@ transform: 变换函数;
     }
 }
 ```
+
+## CSS Modules
+
+用于提供局部作用域和模块依赖
+
+
+
+### 局部作用域
+
+定义css module文件
+
+```css
+.title {
+	color: red;
+}
+:global(.title) {
+	color: green;
+}
+```
+
+在JSX中使用CSS Modules
+
+```jsx
+import style from './App.module.css';
+
+export default () => {
+    return (
+        <h1 className={style.title}>
+            Hello World
+        </h1>
+    );
+};
+```
+
+> `.title`会被编译为哈希字符串，以此实现局部作用域。
+>
+> `:local(.title)`：等同于`.title`
+>
+> 使用`:global`伪类，可以将括号内的选择器声明为全局有效（不编译为哈希字符串）
+
+
+
+### 模块依赖
+
+class组合：
+
+```css
+.blue {
+  background-color: blue;
+}
+
+.title {
+  composes: blue;
+  color: red;
+}
+```
+
+> title会继承blue选择器的规则
+
+
+
+跨文件组合：
+
+```css
+composes: blue from './another.css';
+```
+
+
 
 ## 常见问题
 
@@ -795,3 +923,16 @@ focus-visible选择器，表示键盘伪类焦点选择器，在规范中定义�
     outline: 0;
 }
 ```
+
+### flex弹性元素被内容撑大
+
+```css
+弹性元素 {
+    flex-grow: 1;
+    height: 1px; // 固定大小即可
+}
+```
+
+这样盒子就不会被撑开，但是内容会溢出，给弹性元素再添加overflow: hidden;
+
+还有一点，上层的每一个盒子都需要有高度，不然还是会被撑开
