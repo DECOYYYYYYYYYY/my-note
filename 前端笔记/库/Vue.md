@@ -117,12 +117,35 @@ Vue会监测data中所有层次的数据：**不允许动态为data添加属性*
   - `.number` 输入字符串转为有效的数字
   - `.trim` 首尾空格过滤
 
-- 组件上使用`v-model="xxx"`，本质为：（可用model选项定制）
+- 组件上使用`v-model="xxx"`：
 
   ```vue
-  v-bind:value="xxx"
-  v-on:input="xxx = $event"
+  Vue.component('base-checkbox', {
+    model: {
+      prop: 'checked',
+      event: 'change'
+    },
+    props: {
+      checked: Boolean
+    },
+    template: `
+      <input
+        type="checkbox"
+        v-bind:checked="checked"
+        v-on:change="$emit('change', $event.target.checked)"
+      >
+    `
+  })
+  /*
+  	使用时：
+  	<base-checkbox v-model="lovingVue"></base-checkbox>
+  */
   ```
+  
+  - 使用v-model不指定属性名时，默认将value作为属性名，input作为更新事件
+  - model选项用于在组件内自定义属性名和事件名
+  - 组件内仍需在props声明属性，以接收传入的变量
+  
 
 
 

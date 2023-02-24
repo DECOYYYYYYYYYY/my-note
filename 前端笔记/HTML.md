@@ -29,3 +29,16 @@
 7. 改变浏览器的字体颜色（只重绘）
 8. 改变元素的背景颜色（只重绘）
    
+
+
+
+## 引入JS
+
+> script元素可写在head标签中 或  写在body标签的最后（防止阻塞页面加载）
+
+1. 内嵌式：直接将JS代码放入`<script></script>`标签内
+2. 外部式【推荐】：`<script src="JS文件url"></script>` 
+3. 行内式：写在元素内部，例如`<input type="button" onclick="JS语句">`
+4. 动态加载：通过DOM创建script标签，此方式创建的script元素相当于添加了async属性，考虑兼容性，可将async属性设置为false
+   - 动态加载的资源对浏览器预加载器不可见，可以通过link标签预加载
+

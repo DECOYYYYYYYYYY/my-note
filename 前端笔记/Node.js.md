@@ -152,29 +152,3 @@ fs模块用于操作文件系统
 `const {resolve} = require('path');`
 
 拼接绝对路径：`resolve(__dirname, '路径')` 返回字符串，变量`__dirname`代表当前文件所在目录的绝对路径
-
-## 常用node库
-
-### axios
-
-axios中的AJAX（**推荐**）：npm i axios
-
-axios.default.baseURL = ‘域名’             若设置了baseURL，则下面的url可以省去baseURL中的部分
-
-axios.get（‘url’，配置对象）              返回promise对象
-
-配置对象的属性：
-
-param：｛xx｝                         通过url传递的参数
-
-headers：｛xx｝                        请求头信息
-
-axios.post（‘url’，｛请求体属性｝，配置对象同上） 返回promise对象
-
-axios（对象）                            通用请求函数，返回promise对象
-
-对象的属性：
-
-method：‘POST’、url：‘xx’、params：｛｝、headers：｛｝、data：｛｝
-
-axios.get（xxx）.then（response=>｛。。。｝）     响应处理函数，response变量为一个对象，包含响应信息

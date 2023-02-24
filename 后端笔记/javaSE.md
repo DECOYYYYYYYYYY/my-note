@@ -863,9 +863,21 @@ IOUtils.copy(fis,os); // fis:输入流, os:输出流
 
 `FileReader/FileWriter(文件路径字符串)`  字符流读写文件
 
-`BufferedReader/BufferedWriter(FileReader/FileWriter实例)`  缓冲加速字符流
 
-方法同字节流
+
+缓冲加速：`BufferedReader/BufferedWriter(FileReader/FileWriter实例)`
+
+bufferedReader方法：
+
+- `public Stream<String> lines()` 按行读取文本，并返回stream流
+
+
+
+**字符流与字节流转换**
+
+- 字节流到字符流：`InputStreamReader/OutputStreamWriter`
+
+- 字符流到字节流：从字符流中获取char[]数组，转换为String，然后调用String的API函数getBytes() 获取到byte[]，然后就可以通过ByteArrayInputStream、ByteArrayOutputStream来实现到字节流的转换
 
 
 

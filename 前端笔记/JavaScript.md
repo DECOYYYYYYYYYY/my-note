@@ -1,25 +1,272 @@
 # JavaScript
 
-## 基本
+## 综述
+
+> 浏览器包含渲染引擎和JS引擎，前者解析HTML和CSS，也称内核，后者处理JS代码。
+>
+> JS由ECMAScript（JavaScript语法）、DOM（页面文档对象模型）、BOM（浏览器对象模型）组成
+
+### JS执行机制
+
+> 事件循环：即执行机制的2~8步
+>
+> 宏任务：script（全局任务），setTimeout，setInterval，setImmediate，I/O，UI rendering
+>
+> 微任务：process.nextTick，Promise，Object.observer…
+
+执行机制：
+
+1. 所有代码作为全局任务进入宏任务队列
+2. 从宏任务队列出队一个任务，进入主线程执行栈
+3. 执行代码：遇到同步代码立即执行，遇到异步代码则注册回调函数
+   - 当指定的条件达成后，注册的回调函数将移入宏任务/微任务队列
+4. 执行完毕，执行栈清空后，从微任务队列出队一个任务，进入主线程执行栈并执行
+5. 重复第4步，直至微任务队列清空
+6. 执行浏览器ui渲染
+7. 检查是否有webworker任务，有则执行
+8. 返回第2步
+
+
+
+进程与线程：JS是单线程运行的，使用Web Workers可以多线程运行（由单线程模拟）
+
+
+
+浏览器内核：支撑浏览器运行的最核心的程序。内核由很多模块组成：
+
+- 主线程模块：js引擎模块；html，css文档解析模块；DOM/CSS模块；布局和渲染模块 ......
+- 分线程模块：定时器模块；事件响应模块；网络请求模块
+
+
+
+### 字符编码
+
+> 码元：一个长度为16比特（2字节）的编码
+>
+> 码点：由一个或多个码元组成的，表示一个字符的编码。码点值等于Unicode编码值（十六进制数值）
+
+JS中字符串使用两种Unicode编码混合的策略：UCS-2和UTF-16
+
+- UCS-2：适用于Unicode编码在U+0000~U+FFFF的字符，一个码点对应一个码元
+- UTF-16：对于Unicode编码超过U+FFFF的字符，采用该策略。对于UCS-2不能表示的字符，每个字符会用另一个码元去选择一个增补平面，这种每个字符使用两个16位码元的策略称为代理对。
+
+
+
+### 严格模式
+
+> 在脚本开头加上  `"use strict";` 开启严格模式，或在函数开头加上该指令，使函数在严格模式下执行
+
+在严格模式下：
+
+- 使用未声明变量时报错；delete未声明变量时抛出异常；用0作为前缀表示八进制字面量时抛出异常
+- LHS引用时，若在全局作用域也找不到变量，会创建一个全局变量（非严格模式）/ 抛出异常（严格模式）
+- 函数内部的this不允许指向window，会置为undefined。但定时器回调函数的this及在全局作用域下直接使用this不受影响
+- 不允许使用with语句
+- 对函数的限制：函数不能以eval或arguments作为函数名或形参名；两个命名参数不能拥有同一个名称
+- eval内部创建的变量和函数无法被外部访问
+- 只设置了获取函数/设置函数的访问器属性，尝试修改/读取属性会抛出异常
+- ...
+
+
+
+## 基本语法
+
+标识符：变量、函数、属性、函数参数的名称
+
+- 由字母、数字、下划线、$组成。不能以数字开头或使用关键字。建议用小驼峰
+
+注释：
+
+```js
+// 单行注释
+
+/* 
+   多行注释
+*/
+```
+
+
 
 ### 数据类型
 
-- 原始类型：`String、Number、Boolean、null、undefined、Symbol、BigInt`
-- 引用类型：`Object(Object、Function、Array)`
+> JS是弱类型语言，无需进行类型声明，可在任何阶段改变变量的数据类型
+>
+> 原始类型：`String、Number、Boolean、null、undefined、Symbol、BigInt`
+>
+> 引用类型：`Object(Object、Function、Array)`
+>
+> - 所有对象都是Object类型，Function是可执行的Object，Array是属性为数值下标，且内部数据有序的Object
 
-#### 数值
+
+
+#### 空类型
+
+- Undefined：代表未初始化的变量。该类型只有undefined一个值。声明而不初始化变量时，变量值为undefined
+- Null：表示一个空对象指针，该类型只有null一个值。建议使用null对保存对象类型的变量进行初始化
+
+
+
+#### Boolean
+
+> 布尔型，值有true、false
+
+转换为布尔型：`Boolean(值)` ，if等流程控制语句会自动执行此转换
+
+
+
+`Boolean(值)` 转换规则：
+
+- 转换为true：非空字符串、非零数值（包括无穷值）、任意对象（空对象、空数组）
+- 转换为false：空字符串、0和NaN、null、undefined
+
+
+
+#### Number
+
+> 数值型，包含整型和浮点型。采用 双精度64位二进制格式IEEE754 编码
+
+数值字面量：
+
+- 进制表示：二进制：0b开头，八进制：0o开头【或0开头，不建议】，十六进制：0x开头
+- 科学计数法表示：`系数e幂数` ，如 `3.12e7 === 31200000`
+
+
+
+`Infinity` 和 `-Infinity`：无限值，表示超过`[Number.MIN_VALUE, Number.MAX_VALUE]`的数
+
+- 任何非0值除以0或-0，将返回Infinity或-Infinity，详见[操作符](#操作符)
+
+
+
+`NaN`：非数字，表示本来要返回数值的操作失败了
+
+- 任何与NaN的运算操作，返回NaN，详见[操作符](#操作符)
+
+
+
+转换为数值型：
+
+- `Number(值)` 或 `+值`（一元加，返回值与Number一致）
+- parseInt、parseFloat
+- 除+外算术运算符隐式转换 `'12' - 0`、`'123' - '120'`
+
+
+
+`Number(值)` 转换规则：
+
+- 数值直接返回；true和false分别返回1和0；null 返回0；undefined 返回NaN；
+- 如果是字符串，遵循下列规则：
+  - 空字符串转换为0
+  - 如果只包含数字（包括前面带正号或负号的情况），则将其转换为十进制数值
+  - 如果是有效的浮点格式，如“1.1”，则将其转换为对应的浮点数值
+  - 如果是有效的二/八/十六进制整数格式，例如"0xf"，则将其转换为相同大小的十进制整数值
+  - 如果字符串中包含除上述格式之外的字符，则将其转换成NaN
+- 如果是对象：
+  - 调用其 valueOf()，返回值按上述规则转换，若结果不是NaN，返回结果
+  - 否则调用 toString()，返回值按上述规则转换，返回结果
+
+
+
+#### String
+
+> 字符串型，字符串字面量可用单引号、双引号、反引号标识，字符编码[见上文](#字符编码)
+>
+> 字符串原始值和字符串包装对象共享大多数行为，原始值可使用各种实例属性和方法等
+>
+> 字符串是不可变的，修改某字符串的值时，会先销毁原字符串，再将包含新值的字符串保存到该变量
+
+字符字面量：`\n` 换行、`\t` 制表符、`\b` 退格、`\r` 回车、`\f` 换页、`\\`、`\’`、`\”`、`\xnn` 十六进制编码nn表示的字符、`\unnnn` 十六进制编码nnnn表示的Unicode字符
+
+
+
+模板字符串：用反引号 `` ` `` 标识的字符串，如 `` `abc` ``
+
+- 模板字符串会保留字面量的换行符和空格，可以定义跨行字符串
+- 字符串插值：通过在字面量中输入 `${JS表达式}` 实现，表达式的值会被转换为字符串并插入该位置
+- 标签函数：通过 ``函数名`xxx${表达式1} 123${表达式2}404`  ``的方式调用函数
+  - 函数接收到的参数依次为：由插值记号分隔的模板组成的数组、第一个表达式的值、第二个表达式的值。。。
+- 原始字符串：原始的字符串字面量内容，而非转义后的内容
+  - ``String.raw`模板字符串` ``：返回原始字符串
+  - 字符串数组的.raw属性：返回原始字符串数组
+
+
+
+转换为字符串：二元加号拼接字符串，或 String(值)
+
+
+
+`String(值)` 转换规则：
+
+- 若值为null，返回“null”
+- 若值为undefined，返回“undefined”
+- 若值有 toString 方法，调用该方法并返回结果
+- 若值为原始值，转换为包装类后调用 toString 方法
+
+
+
+`toString()` 除了null和undefined，所有引用类型都有该方法
+
+- 返回值：
+  - 数值：返回字符串形式的数值，可传入基数作为参数
+  - 布尔值：返回`"true"` 或 `"false"`
+  - Object：返回`“[object Object]”`
+  - 自定义函数：返回源代码，内置函数返回`“function xxx() { [native code] }”`
+  - Array：返回值同arr.join()，即每个值之间由逗号拼接的字符串
+  - Date：返回当前时区的时间的字符串表示。如：`"Sun Jun 05 2016 10:04:53 GMT+0800 (中国标准时间)"`
+  - RegExp：返回正则表达式字面量的字符串表示。如：`'/ab/i'`
+- 注意：
+  - 整数字面量直接调用toString，点会被识别为小数点，报错。正确使用：`(123).toString()`
+  - 正负数字面量需要加上括号后调用toString，否则会先执行toString，然后运算正负号，返回数值型
+
+
+
+#### Symbol
+
+> 符号，ES6 新增的原始数据类型。符号实例唯一、不可变，不能与其他数据运算，用来创建唯一记号，用作非字符串形式的对象属性
+>
+> 使用符号作为属性：任何可以使用字符串作为属性的地方，都可以使用符号代替
+
+获取实例：
+
+- `Symbol([‘描述字符串’])` ：返回符号实例，即使描述字符串相同，值也不同
+- `Symbol.for([‘描述字符串’])`：返回符号实例，以描述字符串为键，在全局符号注册表中创建并重用符号实例
+  - 若注册表中不存在指定键值对，创建符号实例作为值添加到注册表，返回符号实例；若已存在，返回相应的符号实例
+  - 即使描述字符串相等，注册表中定义的符号实例跟用 Symbol() 定义的符号实例也不等同
+
+
+
+静态方法：
+
+- `keyFor(symbol实例)` 在全局符号注册表中查询 symbol 实例的字符串键，若查询不到，返回 undefined
+
+
+
+常用内置符号：用于暴露语言内部行为，这些内置符号以全局函数 Symbol 的字符串属性存在，值为符号
+
+- `Symbol.hasInstance` 用作对象的键，值为方法，instanceOf
+- `Symbol.toStringTag` 对象，字符串，定义Object.prototype.toString.call返回值的标签名
+- `Symbol.unscopables` 对象，配置对象，配置对象中设置同名属性，值为true，将属性从 with 环境排除
+- `Symbol.toPrimitive` 对象，方法，转换为原始值时，以该方法的返回值为结果
+- `Symbol.iterator` 对象，方法，该方法返回对象默认的迭代器
+- `Symbol.asyncIterator` 对象，方法，返回默认 AsyncIterator
+- `Symbol.isConcatSpeadable` 对象，布尔值，表示对象在被 concat 用作参数来合并时，选择是否展开
+  - 对于数组对象，默认为真值；对于类数组对象，默认为假值
+- `Symbol.match` 正则对象，方法，String.prototype.match()会调用该方法对正则表达式求值
+  - 方法接收参数 target，即调用 match()方法的字符串实例，方法的返回值无限制
+- `Symbol.replace / Symbol.search / Symbol.split` 对象，方法。String.prototype.replace()/search()/split()。replace 接收参数 target、replacement(替换字符串)，后两者接受 target，返回值无限制
+- `Symbol.species` 对象，方法，创建衍生对象时，会使用该方法
+  - 会创建衍生对象的方法：`Array.prototype.map() .filter() .concat()`
+
+
+
+#### BigInt
 
 - BigInt 类型：`123456789n` 支持`+ - * ** /`
 - 除法会舍去小数部分，返回整数；不能与普通数值进行混合运算
 - `0o767 0b1011101`二进制和八进制表示法
 - `1_000_000` 数值分隔符
-- `Number.EPSILON` JavaScript 能够表示的最小精度
-- `Number.isFinite(变量) / Number.isNaN(...) / Number.isInteger(...) / Number.isSafeInteger(...)`
-- `Number.parseInt('字符串') / Number.parseFloat(...)`
-- `Math.trunc(数值)` 去除小数部分
-- `Math.sign(数值)` 根据数值符号返回 1、0、-0、-1、NaN
-- `Math.sqrt(数值) / Math.cbrt(数值)` 计算一个数的 平方根/立方根
-- `Math.fround(数值)` 返回数值最接近的单精度(32 位)浮点值表示
+
+  
 
 ### 操作符
 
@@ -146,18 +393,6 @@
     - 等号右边若为字符串、数值、布尔，会尝试转换为对象再赋值
     - 解构赋值内部仅在赋值语句的非模式部分可以使用圆括号
 
-### 事件循环
-
-事件循环的过程：
-
-1. 若存在宏任务，取一个宏任务执行，执行完毕后，进入下一步。
-2. 取一个微任务执行，执行完毕后再取一个微任务，直到微任务队列为空，进入下一步。
-3. 更新UI渲染。回到第一步。
-
-- 宏任务：script（全局任务）,setTimeout, setInterval, setImmediate, I/O, UI rendering
-
-- 微任务：process.nextTick, Promise, Object.observer…
-
 ### 原型
 
 - 原型对象：创建函数时，自动生成一个对应的原型对象。自定义构造函数的原型对象默认只有 constructor 属性，指回自定义构造函数。
@@ -167,6 +402,82 @@
   - 该属性为非标准属性，建议改用 Object.getPrototypeOf()和 Object.setPrototypeOf()操作`[[Prototype]]`特性
 - 原型链：任何原型对象也有其原型对象。从实例开始沿着隐式原型属性层层向上，直到 null 为止的链条，称为原型链
   - 读取对象的属性时，会沿着原型链层层查找，若找不到，则返回 undefined；设置对象的属性则直接设置在该对象上
+
+## 基本引用类型
+
+### Date
+
+### RegExp
+
+### 原始值包装类型
+
+> 可以通过 new 操作符创建原始值包装类型的实例，会根据传入构造函数的值，创建实例。
+>
+> 以读模式访问原始值时【获取值或调用其方法，如 需调用toString时】，后台会执行：创建一个对应原始包装类型的实例、调用实例方法、销毁实例
+
+#### String
+
+#### Number
+
+创建实例：`new Number(值)` 值会自动通过 Number() 转换后存于实例中
+
+
+
+静态属性：
+
+- `EPSILON`：JS表示的最小精度
+- `MAX_SAFE_INTEGER / MIN_SAFE_INTEGER`：最大/最小安全整数，即`-2**53+1 / 2**53-1`
+- `MAX_VALUE / MIN_VALUE`：最大/最小正数
+- `NEGATIVE_INFINITY / POSITIVE_INFINITY`：负无穷大值/正无穷大值，溢出时返回该数
+
+
+
+静态方法：
+
+- `isFinite(值) / isNaN(值)`：返回布尔，判断值是否有穷/是否是非数
+  - 不同于window对象上的同名方法，这两者不会对传入值进行类型转换
+- `isInteger(值) / isSafeInteger(值)`：返回布尔，判断值是否为整数 / IEEE754数值格式范围内的整数
+- `parseInt(字符串[,基数]) / parseFloat(字符串)`：返回数值
+  - 同window对象上的同名方法
+  - 会将传入值转换为字符串再解析（即使传入数值，也会先转换为字符串）
+  - 从第一个非空白字符开始解析，若第一位就无法解析则返回NaN
+  - 遇到不能解析的内容时，会解析前面可解析的子串，并返回结果
+
+
+
+实例方法：
+
+- `valueOf()`：返回原始值
+- `toLocaleString([基数])/ toString([基数])`：返回数值字符串
+- `toFixed(小数位数)`：返回数值字符串，保留指定位数小数【四舍五入】
+- `toExponential(小数位数)`：返回以科学计数法表示的数值字符串，保留指定位数小数【四舍五入】
+- `toPrecision(数字总位数)`：根据情况返回固定长度或科学计数法形式（指数不计入数字总位数）的数值字符串【四舍五入】
+
+
+
+#### Boolean
+
+创建实例：`new Boolean(值)` 值会自动通过 Boolean() 转换后存于实例中
+
+
+
+实例方法：
+
+- `valueOf()`：返回原始值true/false
+- `toString()`：返回字符串"true"/"false"
+
+
+
+### 单例内置对象
+
+#### Global
+
+#### Math
+
+- `Math.trunc(数值)` 去除小数部分
+- `Math.sign(数值)` 根据数值符号返回 1、0、-0、-1、NaN
+- `Math.sqrt(数值) / Math.cbrt(数值)` 计算一个数的 平方根/立方根
+- `Math.fround(数值)` 返回数值最接近的单精度(32 位)浮点值表示
 
 ## 字符串
 
@@ -523,6 +834,8 @@
 
 ### 实例方法
 
+> 对象的实例方法应当通过`Object.property.方法名.call(...)`的形式调用，防止对象有实例方法同名属性时出现错误。
+
 - `hasOwnProperty("属性名")` 返回布尔，判断对象自身是否有指定的属性
 - `isPrototypeOf(对象)` 返回布尔，判断调用对象是否在指定对象的原型链上
 - `propertyIsEnumerable("属性名")` 返回布尔，判断对象自身指定属性是否可枚举
@@ -628,6 +941,15 @@ window 的布局属性：
   - 声明了 DTD 的情况下：`document.documentElement.scrollTop`
   - 未声明 DTD 的情况下：`document.body.scrollTop`
 
+`element.getBoundingClientRect()`：返回一个 DOMRect 对象，是包含整个元素的最小矩形（包括边框），属性如下：（值为数值，单位为像素）
+
+- `x|left`：矩形左边线到视口左边线的距离
+- `y|top`：矩形上边线到视口上边线的距离
+- `right/bottom`：矩形右/下边线到视口左/上边线的距离
+- `width/height`：矩形宽/高
+
+`element.getClientRects()`：待补充
+
 #### 节点
 
 只读属性：
@@ -662,6 +984,8 @@ DOM 事件流：捕获阶段、当前目标阶段、冒泡阶段
 onclick 定义的监听器和 attachEvent 只能捕获冒泡阶段、addEventListener 可以选择冒泡或捕获
 事件委托：不在每个子节点单独设置事件监听器，而是监听器设置在父节点上，然后利用冒泡原理影响每个子节点
 
+
+
 #### 注册事件
 
 - `eventTarget.on事件名 = callback`
@@ -669,11 +993,15 @@ onclick 定义的监听器和 attachEvent 只能捕获冒泡阶段、addEventLis
   - useCapture 为 ture 表示在捕获阶段调用，false 为冒泡阶段调用
 - `eventTarget.attachEvent('带on的事件类型字符串', callback)` 非标准，ie9-
 
+
+
 #### 删除事件
 
 - `eventTarget.on事件名 = null`
 - `eventTarget.removeEventListener(...)`
 - `eventTarget.detachEvent(...)`
+
+
 
 #### 事件大全
 
@@ -683,7 +1011,8 @@ onclick 定义的监听器和 attachEvent 只能捕获冒泡阶段、addEventLis
   - 执行顺序：keydown – keypress – keyup
 - 表单：`submit(表单提交), change(表单元素的 value 发生改变)`
 - 窗体：`scroll(滚动条滚动), contextmenu(开启右键菜单), selectstart(拖动左键选择), resize(窗体大小发生改变), load(页面完全加载完毕), DOMContentLoaded(DOM 加载完毕并执行完 js 代码)`
-- 注：若要监视 DOM 元素的大小变化，可使用 `ResizeObserver` API
+
+
 
 #### 事件对象
 
@@ -720,39 +1049,101 @@ onclick 定义的监听器和 attachEvent 只能捕获冒泡阶段、addEventLis
 
 - `keyCode` 该键的 ASCII 码值(keyup 和 keydown 不区分字母大小写，默认大写；keypress 区分大小写)
 
+
+
+### Observer API
+
+#### ResizeObserver
+
+> 用于监测DOM元素的大小变化
+
+创建：`new ResizeObserver(callback)` DOM元素大小变化时，触发回调
+
+- 回调函数接收两个参数：
+  - entries参数：对象数组，对象描述了元素改变后的新尺寸
+  - observer参数：对ResizeObserver实例自身的引用，可用于取消监听
+
+实例方法：
+
+- `observe(target:Element, options?:obj)`：监听目标
+  - options：可选配置对象，可选属性如下：
+    - `box:string`：配置要监听的盒模型大小，可选值如下
+      - `"content-box"`：默认值
+      - `"border-box"`
+      - `"device-pixel-content-box"`：在对元素或其祖先应用任何 CSS 转换之前，CSS 中定义的内容区域的大小，以设备像素为单位。
+- `unobserve(target:Element)`：取消对指定目标的监听
+- `disconnect()`：取消所有目标的监听
+
+
+
+#### MutationObserver
+
+> 用于监测DOM元素的节点、子树、自身属性变动
+
+创建：`new MutationObserver(callback)` DOM元素发生指定变化时，触发回调
+
+- 回调函数接收两个参数：
+  - entries参数：对象数组，对象描述了变化
+  - observer参数：对MutationObserver实例自身的引用，可用于取消监听
+
+实例方法：
+
+- `observe(target:Element, options:obj)`：监听目标
+  - options：配置对象，childList、attributes 和 characterData 中，必须有一个参数为 true
+    - `subtree:bool=false`：为true时，监听以 target 为根节点的整个子树
+    - `childList:bool=false`：为true时，监听 target 节点中发生的**子节点的新增与删除**
+    - `attributes:bool=true`：为true时，监听 target 节点**属性值的变化**（可以监听style属性）
+      - 若声明了 attributeFilter 或 attributeOldValue，默认值则为 false
+    - `attributeFilter?:string[]`：要监听属性的属性名数组，若不声明，监听所有属性
+    - `attributeOldValue:bool=false`：为true时，记录前一个被监听节点的属性变化
+    - `characterData:bool=true`：为 true 时，监听声明的 target 节点上所有字符的变化
+      - 若声明了 characterDataOldValue，默认值则为 false
+    - `characterDataOldValue:bool=false`：为 true 时，记录前一个被监听节点中发生的文本变化
+- `disconnect()`：取消所有目标的监听
+- `takeRecords()`：返回已检测到但尚未由观察者的回调函数处理的所有匹配 DOM 更改的列表（同回调函数的entries参数），然后将该队列清空（清空后不会再触发回调函数）
+  - 通常在调用disconnect之前调用，将未处理的变化处理完毕后，再取消监听
+
+
+
+#### IntersectionObserver
+
+> 用于监测DOM元素与视口的交叉状态（DOM元素在视口内的可见部分）
+
+创建：`new IntersectionObserver(callback, options?:obj)` 元素可见比例超过阈值时，触发回调
+
+- 回调函数接收两个参数：
+  - entries参数：对象数组，对象描述了被监测元素的信息
+  - observer参数：对IntersectionObserver实例自身的引用，可用于取消监听
+- options：可选，配置对象
+  - `root?:Element`：要作为视口的元素。若不指定，则页面可见部分作为视口
+  - `rootMargin:string="0px"`：语法同css的margin属性。一组偏移量，用于扩大或缩小根的判定范围
+  - `threshold:number|number[]=0`：触发回调的可见比例阈值。值是一个0-1的数值，或其数组
+    - 值为0，表示当元素有一部分进入或完全离开视口时，触发回调
+    - 值为1，表示当元素完全进入视口时，触发回调
+
+实例属性：root、rootMargin、thresholds
+
+实例方法：
+
+- `observe(target:Element)`：监听目标，必须是 root 属性的后代
+- `unobserve(target:Element)`：取消对指定目标的监听
+- `disconnect()`：取消所有目标的监听
+- `takeRecords()`：参考MutationObserver的[同名方法](#MutationObserver)
+
+## BOM
+
+输入输出语句：
+
+- alert（msg）；                           浏览器弹出警示框
+- confirm（‘msg’）                         弹出询问框，返回布尔
+- console.log（msg）；                       浏览器控制台打印输出信息
+- console.dir（对象）；                      打印对象，更好地查看属性和方法
+- console.time（[str]）；console.timeEnd（[str]）   计算器，timeEnd（）方法会将两个方法间花费的时间打印在控制台，str需一致
+- prompt（info）；                             浏览器弹出输入框
+
+
+
 ## ES6
-
-### Symbol
-
-符号，ES6 新增的原始数据类型。符号实例唯一、不可变，不能与其他数据运算，用来创建唯一记号，用作非字符串形式的对象属性
-
-创建：
-
-- `Symbol([‘描述字符串’]);` 创建并返回符号实例，即使描述字符串相同，值也不同
-- `Symbol.for([‘描述字符串’])` 返回符号实例，以描述字符串为键，在全局符号注册表中创建并重用符号实例
-  - 即使描述字符串相等，注册表中定义的符号实例跟用 Symbol()定义的符号实例也不等同
-
-使用符号作为属性：任何可以使用字符串或数值作为属性的地方，都可以使用符号。
-
-静态方法：
-
-- `keyFor(symbol实例)` 在全局符号注册表中查询 symbol 实例的字符串键，若查询不到，返回 undefined
-
-常用内置符号：用于暴露语言内部行为，这些内置符号以全局函数 Symbol 的字符串属性存在，值为符号
-
-- `Symbol.hasInstance` 用作对象的键，值为方法，instanceOf
-- `Symbol.toStringTag` 对象，字符串，定义Object.prototype.toString.call返回值的标签名
-- `Symbol.unscopables` 对象，配置对象，配置对象中设置同名属性，值为true，将属性从 with 环境排除
-- `Symbol.toPrimitive` 对象，方法，转换为原始值时，以该方法的返回值为结果
-- `Symbol.iterator` 对象，方法，该方法返回对象默认的迭代器
-- `Symbol.asyncIterator` 对象，方法，返回默认 AsyncIterator
-- `Symbol.isConcatSpeadable` 对象，布尔值，表示对象在被 concat 用作参数来合并时，选择是否展开
-  - 对于数组对象，默认为真值；对于类数组对象，默认为假值
-- `Symbol.match` 正则对象，方法，String.prototype.match()会调用该方法对正则表达式求值
-  - 方法接收参数 target，即调用 match()方法的字符串实例，方法的返回值无限制
-- `Symbol.replace / Symbol.search / Symbol.split` 对象，方法。String.prototype.replace()/search()/split()。replace 接收参数 target、replacement(替换字符串)，后两者接受 target，返回值无限制
-- `Symbol.species` 对象，方法，创建衍生对象时，会使用该方法
-  - 会创建衍生对象的方法：`Array.prototype.map() .filter() .concat()`
 
 ### Set
 

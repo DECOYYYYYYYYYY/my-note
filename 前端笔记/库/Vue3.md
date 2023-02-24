@@ -109,12 +109,27 @@ let A2 = computed(() => A0.value + A1.value)
 与Vue2的差别：
 
 - `v-on`：$event不再可用，给v-on绑定一个箭头函数，函数会接收到事件附带的参数
+
 - `v-bind`：移除`.sync`修饰符，新增修饰符：
   - `.camel`：将绑定属性从短横线命名转为驼峰命名
   - `.prop`：强制绑定为DOM属性
   - `.attr`：强制绑定为DOM特性
-- `v-model`：所添加的修饰符可以通过 `modelModifiers` prop 在组件内访问到，其默认值为空对象
-  - 组件自定义修饰符：`modelModifiers` 对象的键名为已添加的修饰符名，键值为true
+  
+- `v-model`：
+  
+  - 组件使用 `v-model`：在组件内接收参数并触发事件即可
+  
+    ```vue
+    <CustomInput v-model="serchText" />
+    <!-- 会被展开为如下形式 -->
+    <CustomInput
+      :modelValue="searchText"
+      @update:modelValue="newValue => searchText = newValue"
+    />
+    ```
+  
+  - 所添加的修饰符可以通过 `modelModifiers` prop 在组件内访问到，其默认值为空对象。有修饰符时，会将 `修饰符名:true` 的键值对添加进该对象中
+  
 
 
 
