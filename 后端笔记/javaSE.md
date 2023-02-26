@@ -618,6 +618,7 @@ Integer、Long、Byte、Double、Float、Short 都是抽象类 Number 的子类�
 
 - String对象在创建后不可改变，修改变量时会创建新的对象，并更新引用
 - 字符串为引用类型
+- 中文支持：`new String("中文字符串".getBytes("GBK"), StandardCharsets.ISO_8859_1)`
 
 实例方法：
 
