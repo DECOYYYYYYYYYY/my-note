@@ -698,7 +698,7 @@ SELECT [DISTINCT] {*|字段列表}
   - 返回`'HH:MM:SS'` 或 `HHMMSS`
 - `CURRENT_TIMESTAMP()、LOCALTIME()、NOW() 或 SYSDATE()`
   - 返回`'YYYY-MM-DD HH:MM:SS'` 或 `YYYYMMDDHHMMSS`
-- `UTC_DATE()`、`UTC_TIME()` 返回UTC日期/时间，格式同上
+- `UTC_DATE()`、`UTC_TIME()`、`UTC_TIMESTAMP()` 返回UTC日期/时间/日期与时间，格式同上
 
 格式转换：
 
