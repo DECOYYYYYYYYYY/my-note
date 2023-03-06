@@ -676,6 +676,19 @@ import * as Form from './form-components'
 
 
 
+生命周期事件：组件在到达某个生命周期时，还会触发生命周期事件
+
+> 事件回调接收一个参数Vnode，Update相关回调还会提供第二个参数（上一个VNode）
+
+- `vnodeBeforeMount`
+- `vnodeMounted`
+- `vnodeBeforeUpdate`
+- `vnodeUpdated`
+- `vnodeBeforeUnmount`
+- `vnodeUnmounted`
+
+
+
 ### 单文件组件
 
 单文件组件（SFC）的子组件推荐使用大驼峰命名，以区分HTML元素
