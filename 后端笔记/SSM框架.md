@@ -1186,14 +1186,87 @@ public class SpringMvcConfig {}
 
 #### 接收参数
 
-get和post请求都
+接收param参数：
+
+- 普通类型：url中的每个参数由方法的同名参数对应接收
+
+  ```java
+  // http://.../...?name=itcast&age=15
+  
+  @RequestMapping("/commonParam")
+  @ResponseBody
+  public String commonParam(String name,int age){} // 参数名与url中一致
+  ```
+
+- POJO类型：方法的参数为POJO类，会将请求参数注入POJO的同名属性（要求必须同名）
+
+- 嵌套POJO类型：上述POJO的某属性为另一个POJO类，按对象层次接收
+
+  ```java
+  // ?age=15&address.city=beijing
+  public class Address {
+      private String city;
+      //setter...getter...略
+  }
+  public class User {
+      private int age;
+      private Address address;
+      //setter...getter...略
+  }
+  ```
+
+- 数组类型：方法的参数为数组，要求请求参数有多个且与数组同名
+
+- 集合类型：使用方法同上，但list是接口无法创建对象，需用`@RequestParam`注解
+
+  ```java
+  public String listParam(@RequestParam List<String> likes){}
+  ```
+
+- 日期参数：前SpringMVC支持的字符串转日期的格式为`yyyy/MM/dd`
+
+  - 控制方法的参数添加注解`@DateTimeFormat`，并指定字符串
+
+    ```java
+    public String fn(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date date)
+    ```
+
+
+
+
+接收请求体参数：
+
+- 引入jackson依赖：
+
+  ```xml
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-databind</artifactId>
+  <version>2.9.0</version>
+  ```
+
+- SpringMVC配置类添加注解 `@EnableWebMvc`
+
+- 控制方法的参数添加注解 `@RequestBody`
+
+  - 该注解修饰集合或POJO，将json参数注入集合（json数组）或POJO（json对象）
+
+
+
+#### 获取session/request
+
+在controller方法中接收一个HttpSession / HttpServletRequest 类型的参数即可
 
 ```java
-// http://.../...?name=itcast&age=15
+@RequestMapping("/test")
+public String test(HttpServletRequest request) {
+    HttpSession session = request.getSession();
+    // ...
+}
 
-@RequestMapping("/commonParam")
-@ResponseBody
-public String commonParam(String name,int age){} // 参数名与url中一致
+@RequestMapping("/test")
+public String test(HttpSession session) {
+    // ...
+}
 ```
 
 
@@ -1231,67 +1304,6 @@ public String commonParam(@RequestParam("name") String userName , int age)
 - defaultValue属性：参数默认值
 
 
-
-#### 参数接收种类
-
-- 普通类型：url中的每个参数由方法的每个参数对应接收
-
-- POJO类型：方法的参数为POJO类，会将请求参数注入POJO的同名属性（要求必须同名）
-
-- 嵌套POJO类型：上述POJO的某属性为另一个POJO类，按对象层次接收
-
-  ```java
-  // ?age=15&address.city=beijing
-  public class Address {
-      private String city;
-      //setter...getter...略
-  }
-  public class User {
-      private int age;
-      private Address address;
-      //setter...getter...略
-  }
-  ```
-
-- 数组类型：方法的参数为数组，要求请求参数有多个且与数组同名
-
-- 集合类型：使用方法同上，但list是接口无法创建对象，需用`@RequestParam`注解
-
-  ```java
-  public String listParam(@RequestParam List<String> likes){}
-  ```
-
-  
-
-#### JSON参数与日期参数
-
-接json参数：
-
-- 引入jackson依赖：
-
-  ```xml
-  <groupId>com.fasterxml.jackson.core</groupId>
-  <artifactId>jackson-databind</artifactId>
-  <version>2.9.0</version>
-  ```
-
-- SpringMVC配置类添加注解`@EnableWebMvc`
-
-- 控制方法的参数添加注解`@RequestBody`
-
-  - 该注解修饰集合或POJO，将json参数注入集合（json数组）或POJO（json对象）
-
-
-
-日期参数：前SpringMVC支持的字符串转日期的格式为`yyyy/MM/dd`
-
-- 控制方法的参数添加注解`@DateTimeFormat`，并指定字符串
-
-  ```java
-  public String fn(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date date)
-  ```
-
-  
 
 ### 响应
 
@@ -1809,6 +1821,20 @@ java –jar xxx.jar –-server.port=88 –-spring.profiles.active=test
 * 2级：classpath：config/application.yml
 * 3级：file ：application.yml
 * 4级：file ：config/application.yml
+
+
+
+#### 配置项
+
+```yml
+server:
+	port: 8080 # 开放端口
+	servlet:
+		session:
+			timeout: 3600 # session超时时间
+			cookie:
+				name: SESSIONID # sessionid在cookie中的名字
+```
 
 
 
