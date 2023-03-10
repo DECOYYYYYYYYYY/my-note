@@ -2636,10 +2636,24 @@ xhr.onreadystatechange = function (){
   - `method`：`'GET'`、`'POST'`
   - `headers`：请求头信息，为对象
   - `body`：请求体信息，可为对象可为字符串（get方法的参数）
+  
 - 特点：
   - 收到一个代表错误的HTTP状态码（2xx）时，返回的Promise状态仍为fulfilled，但返回值的ok属性为false，仅网络故障或请求被阻止时，才会标记为rejected
   - 可以接受跨域cookies
   - 不发送跨域cookies
+  - 响应body是一个 ReadableStream 对象，一种可读取二进制结构，可以调用response的text()、json()、blob()等方法，会返回一个promise对象，其值为转换后的响应body
+  
+- 模拟表单方式提交：
+
+  ```js
+  fetch("/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: `username=${account}&password=${pwd}` // 查询字符串格式
+  })
+  ```
 
 
 

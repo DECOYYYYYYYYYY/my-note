@@ -258,6 +258,7 @@ Stream<T> skip(long n); // 跳过前n个元素
 Stream<T> distinct(); // 去重，根据元素的hashCode和equals方法
 
 stream.collect(Collectors.toList()) // 将stream收集到List中
+stream.toArray(String[]::new) // 将stream转换为数组
 
 public static Stream<T> concat(Stream<T> a, Stream<T> b); // 合并流，要求类型一致
 

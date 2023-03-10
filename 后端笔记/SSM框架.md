@@ -2180,7 +2180,8 @@ public class CustomConfiguration {
     - transactionManager：事务管理
     - dataSource：数据库连接信息
 - typeAlias节点：类型别名
-  - 在package节点中设置包名后，在SQL映射文件中的resultType属性可以直接写该包下的类名。如`User`
+  - 在package节点中设置包名后，在SQL映射文件中的resultType属性可以直接写该包下的类名，如`User`。
+  - 但需注意，若类并非直接在该包下，而是在该包内的其他包中，则仍需在type属性中指定全类名。
 
 ### sql映射文件
 
@@ -2483,6 +2484,8 @@ sqlSession.close();
     ```
 
 - 此时会自动实现Mapper，其实现类将作为Bean可被装载。Mapper和SQL映射文件之间的关系仍存在
+
+  - SQL映射文件中查询得到的下划线格式的字段，在通过resultMap转换为PO时，会自动匹配小驼峰格式的属性，所以无需指定列映射，但在resultMap中仍需指定id映射
 
 
 

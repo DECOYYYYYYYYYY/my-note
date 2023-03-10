@@ -12,11 +12,9 @@
 
 - 主体（用户id、账号、密码、...） 
 - 角色（角色id、角色名称、...）
-- 权限（权限id、权限标识、权限名称、...） 
-- 资源（资源路径）
+- 权限（权限id、权限标识、资源路径、...） 
 - 主体和角色**多对多**关系（用户id、角色id、...）
 - 角色和权限**多对多**关系（角色id、权限id、...） 
-- 权限和资源**多对一**关系（权限id、资源id）
 
 
 
@@ -219,7 +217,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     object.setAccessDecisionManager(customAccessDecisionManager);
                     return object;
                 }
-            });
+            })
+            .anyRequest().authenticated(); // 所有请求都需验证
     }
 }
 ```
@@ -228,21 +227,26 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
 
-SecurityMetadataSource类：根据要访问的资源，获取其所需的权限
+SecurityMetadataSource类：根据要访问的资源，获取其所需的角色
 
 ```java
+@Component
 public class CustomSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
 
     @Override
     public Collection<ConfigAttribute> getAttributes(Object object) throws IllegalArgumentException {
-
-        String url = ((FilterInvocation) object).getRequestUrl(); // 获取请求的 URL
+		// 获取请求路径，并去除参数
+        String url = ((FilterInvocation) object).getRequestUrl(); // 带参数的路径
+        int index = url.indexOf('?');
+        if (index > 0) {
+            url = url.substring(0, index);
+        }
         
         // ...
 
-        // 返回该 URL 所需要的权限集合
-        return SecurityConfig.createList("role1"); // 根据字符串创建ConfigAttribute集合
-        // return SecurityConfig.createList("ROLE_ANONYMOUS") // 无需登录
+        // 返回该 URL 所需要的角色集合
+        return SecurityConfig.createList("role1"); // 根据字符串创建ConfigAttribute集合，也可以传入字符串数组进行创建
+        // return SecurityConfig.createList(); // 无需验证
     }
 
     @Override
@@ -264,6 +268,7 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
 AccessDecisionManager类：判断用户是否有权访问该资源
 
 ```java
+@Component
 public class CustomAccessDecisionManager implements AccessDecisionManager {
 
     @Override
@@ -271,9 +276,9 @@ public class CustomAccessDecisionManager implements AccessDecisionManager {
             Collection<ConfigAttribute> configAttributes) throws AccessDeniedException,
             InsufficientAuthenticationException {
         // 进行权限校验，若校验不通过，需手动抛出异常
-        // configAttributes为所需权限
+        // configAttributes为所需权限，即SecurityMetadataSource的getAttributes方法的返回值
 
-        // 获取用户角色集合
+        // 获取用户具有的角色集合
         Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
     }
 
@@ -384,12 +389,19 @@ public class userDTO implements UserDetails {
 
 
 
-DaoAuthenticationProvider类：用于进行具体认证
+DaoAuthenticationProvider类：用于进行登录时的认证
 
 ```java
 @Component
 public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 
+    public MyAuthenticationProvider(PasswordEncoder passwordEncoder,
+                                    @Qualifier("myUserDetailsServiceImpl") UserDetailsService userDetailsService) {
+        setPasswordEncoder(passwordEncoder);
+        setUserDetailsService(userDetailsService);
+        setHideUserNotFoundExceptions(false); // 区分用户不存在和密码错误异常
+    }
+    
     @Override
     public Authentication authenticate(Authentication auth) throws AuthenticationException {
         try {
@@ -418,16 +430,9 @@ public class CustomAuthenticationProvider extends DaoAuthenticationProvider {
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private CustomAuthenticationProvider customAuthenticationProvider;
-    
-    @Qualifier("customUserDetailsServiceImpl")
-    private UserDetailsService userDetailsService;
-    
-    private PasswordEncoder passwordEncoder;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        customAuthenticationProvider.setPasswordEncoder(passwordEncoder);
-        customAuthenticationProvider.setUserDetailsService(userDetailsService);
         auth.authenticationProvider(customAuthenticationProvider);
     }
 
@@ -476,6 +481,8 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
 #### 用户登录
 
+> **调用登录url必须以表单方式提交**
+
 configure(HttpSecurity http)方法中：
 
 ```java
@@ -485,7 +492,7 @@ http.formLogin()
     .passwordParameter("password") // 自定义密码字段名
     .successHandler(登录成功处理器实例) // 登录成功处理器
     .failureHandler(登录失败处理器实例) // 登录失败处理器
-    .permitAll(); // 允许所有用户访问登录页面
+    .loginPage("/login").permitAll(); // 允许所有用户访问登录页面，可不指定该行
 ```
 
 
@@ -493,6 +500,7 @@ http.formLogin()
 登录成功处理器：
 
 ```java
+@Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
@@ -519,6 +527,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 登录失败处理器：
 
 ```java
+@Component
 public class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
  
     @Override
@@ -563,6 +572,7 @@ http.logout()
 成功登出处理器：
 
 ```java
+@Component
 public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -587,6 +597,7 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 登出处理器：不得抛出异常
 
 ```java
+@Component
 public class CustomLogoutHandler implements LogoutHandler {
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
