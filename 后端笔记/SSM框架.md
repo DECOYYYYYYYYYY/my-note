@@ -1815,7 +1815,8 @@ java –jar xxx.jar –-server.port=88 –-spring.profiles.active=test
 
 配置文件优先级：
 
-> 级别数字越大优先级越高，file表示jar包所在目录
+> 级别数字越大优先级越高，file表示项目根目录，即pom所在目录
+>
 
 * 1级：classpath：application.yml
 * 2级：classpath：config/application.yml
@@ -1831,7 +1832,7 @@ server:
 	port: 8080 # 开放端口
 	servlet:
 		session:
-			timeout: 3600 # session超时时间
+			timeout: 3600 # session超时秒数，若小于60，以60为准，超过该时间没有访问系统，则session过期
 			cookie:
 				name: SESSIONID # sessionid在cookie中的名字
 ```
@@ -1854,12 +1855,21 @@ server:
               <artifactId>spring-boot-maven-plugin</artifactId>
           </plugin>
       </plugins>
+      <!-- 排除sql文件 -->
+      <resources>
+          <resource>
+              <directory>src/main/resources</directory>
+              <excludes>
+                  <exclude>**/*.sql</exclude>
+              </excludes>
+          </resource>
+      </resources>
   </build>
   ```
-
+  
 - 运行命令：`mvn package`，会在target目录下生成jar包
 
-- 运行jar包，启动服务器：`jar -jar xxx.jar`
+- 运行jar包，启动服务器：`java -jar xxx.jar`
 
 
 

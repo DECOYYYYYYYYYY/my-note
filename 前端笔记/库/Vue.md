@@ -1031,7 +1031,7 @@ Store实例：`new Vuex.Store({actions, mutations, state [, getters] })`
   - `动作名(state, value){}` mutations中的动作名一般用全大写，函数内对属性进行操作
 - state：`{初始键值对}`
 - getters：`{方法}` 可选配置
-  - `属性名(){return xx}` getter，通过`getters.属性名` 访问
+  - `属性名(state){return xx}` getter，通过`getters.属性名` 访问
 
 
 

@@ -148,12 +148,12 @@ http.authorizeRequests()
 
 url匹配方法：
 
-- `antMatchers(HttpMethod.*, String regx)`：匹配URL
+- `antMatchers(HttpMethod.*, String regx, ...)`：匹配URL
   - 第一个参数：可以不传，若传递，表示限定请求方法。例：`HttpMethod.GET`
-  - 第二个参数：传递ant表达式字符串，匹配路径
-- `regexMatchers(HttpMethod.*, String regexPattern)`：匹配URL
+  - 后续参数：传递ant表达式字符串，匹配路径
+- `regexMatchers(HttpMethod.*, String regexPattern, ...)`：匹配URL
   - 第一个参数：同上
-  - 第二个参数：传递正则表达式字符串，匹配路径
+  - 后续参数：传递正则表达式字符串，匹配路径
 - `anyRequest()`：匹配任何请求
 
 
@@ -172,6 +172,7 @@ url匹配方法：
 - `hasAuthority(String)`：参数表示权限，具有该权限可以访问
 - `hasAnyAuthority(多个String)`：参数表示权限，具有其中任何一个权限可以访问
 - `hasIpAddress(String)`：参数表示IP地址，如果用户IP和参数匹配，则可以访问
+
 
 
 使用注解简化：
@@ -193,7 +194,20 @@ url匹配方法：
 
 
 
+指定无需认证的URL，在配置类中的configure(WebSecurity web)方法中：
+
+```java
+web.ignoring()
+    .antMatchers("/index.html")
+    .antMatchers("/*.ico")
+    .antMatchers("/image/**");
+```
+
+
+
 #### 从数据库中获取授权信息
+
+> 进行下列配置后，基础授权配置所设置的配置仍然生效
 
 配置类中：
 
@@ -246,7 +260,7 @@ public class CustomSecurityMetadataSource implements FilterInvocationSecurityMet
 
         // 返回该 URL 所需要的角色集合
         return SecurityConfig.createList("role1"); // 根据字符串创建ConfigAttribute集合，也可以传入字符串数组进行创建
-        // return SecurityConfig.createList(); // 无需验证
+        // return SecurityConfig.createList(); // 无需验证，不会进入AccessDecisionManager，直接放行
     }
 
     @Override
@@ -449,12 +463,13 @@ configure(HttpSecurity http)方法中：
 
 ```java
 http.exceptionHandling()
-    .accessDeniedHandler(异常处理器实例) // 403异常处理器
+    .accessDeniedHandler(403异常处理器实例)
+    .authenticationEntryPoint(未登录异常处理函数式接口)
 ```
 
 
 
-403异常处理器：
+403异常处理器：仅适用于已登录用户
 
 ```java
 @Component
@@ -475,6 +490,26 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         out.close();
     }
 }
+```
+
+
+
+未登录异常处理函数式接口：需要权限的资源被未登录用户访问时的抛出的异常，在不设置该接口时，默认会重定向到登录页面
+
+```java
+authenticationEntryPoint((request, response, authException) -> {
+    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+    response.setHeader("Content-Type", "application/json;charset=utf-8");
+
+    JSONObject json = new JSONObject();
+    json.put("code", 401);
+    json.put("msg", "请先登录");
+
+    PrintWriter out = response.getWriter();
+    out.write(json.toString());
+    out.flush();
+    out.close();
+})
 ```
 
 
@@ -611,15 +646,128 @@ public class CustomLogoutHandler implements LogoutHandler {
 
 #### session控制
 
+configure(HttpSecurity http)方法中：
+
+```java
+http.sessionManagement()
+    .sessionRegistry(sessionRegistry实例) // 自定义sessionRegistry
+    .invalidSessionUrl("/session/invalid") // session失效后跳转路径
+    .invalidSessionStrategy(函数式接口) // 自定义session失效处理，若指定该项，会使invalidSessionUrl失效
+    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // session生成策略
+    .maximumSessions(1) // 同一用户同时在线的最大session数（如在不同端登录该用户），设为-1表示无限制
+    .maxSessionsPreventsLogin(false) // 达到最大session数后，是否保留已经登录的用户。为true，新用户无法登录；为 false，旧用户被踢出
+    .expiredSessionStrategy(用户踢出处理器实例) // 用户踢出处理
+```
 
 
-#### 验证码
+
+自定义session失效处理：需要一个函数式接口，通常在session超时时触发
+
+```java
+.invalidSessionStrategy((request, response) -> {
+    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+    response.setHeader("Content-Type", "application/json;charset=utf-8");
+
+    JSONObject json = new JSONObject();
+    json.put("code", 401);
+    json.put("msg", "登录信息过期");
+
+    PrintWriter out = response.getWriter();
+    out.write(json.toString());
+    out.flush();
+    out.close();
+};
+```
+
+
+
+session生成策略，可为sessionCreationPolicy方法传入SessionCreationPolicy的枚举值：
+
+- `ALWAYS`：若没有session则创建一个
+- `NEVER`：springsecurity不创建session，会从应用中引用
+- `IF_REQUIRED`：默认值，在需要时创建一个session
+- `STATELESS`：不创建也不使用session
+
+
+
+用户踢出处理器：
+
+```java
+@Component
+public class MySessionExpiredStrategy implements SessionInformationExpiredStrategy {
+
+    @Override
+    public void onExpiredSessionDetected(SessionInformationExpiredEvent sessionInformationExpiredEvent) throws IOException {
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setHeader("Content-Type", "application/json;charset=utf-8");
+
+        JSONObject json = new JSONObject();
+        json.put("code", 401);
+        json.put("msg", "您的账号已在别的地方登录");
+
+        PrintWriter out = response.getWriter();
+        out.write(json.toString());
+        out.flush();
+        out.close();
+    }
+}
+```
+
+
+
+自定义sessionRegistry：
+
+```java
+public class MySessionRegistryImpl implements SessionRegistry {
+	// ...
+}
+```
+
+
+
+#### 自定义过滤器
+
+configure(HttpSecurity http)方法中：
+
+```java
+http
+    .addFilterBefore(过滤器实例, xx过滤器.class); // 在xx过滤器前添加自定义过滤器
+	.addFilterAfter(过滤器实例, xx过滤器.class); // 在xx过滤器后添加自定义过滤器 
+```
+
+
+
+内置过滤器：
+
+- UsernamePasswordAuthenticationFilter：用户名和密码过滤器
+
+
+
+自定义过滤器实例：
+
+```java
+@Component
+public class ImageCodeFilter extends OncePerRequestFilter {
+	@Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
+
+        try {
+            // 自定义验证
+        } catch (XXException e) {
+            authenticationFailureHandler.onAuthenticationFailure(request, response, e); // 认证失败，交由该handler处理，需要通过依赖注入获取其实例
+            return;
+        }
+
+        filterChain.doFilter(request, response); // 验证通过，转到下一个过滤器
+    }
+}
+```
 
 
 
 #### 通用Bean处理
-
-
 
 ```java
 @Configuration
@@ -642,80 +790,3 @@ configure(HttpSecurity http)方法中：
 ```java
 http.csrf().disable(); // 关闭CSRF跨域保护
 ```
-
-
-
-#### 1
-
-
-
-
-
-配置类configure方法的http参数的常用方法：
-
-```java
-// 添加过滤器到用户名密码校验前（一般为验证码校验）
-http.addFilterBefore(filter,UsernamePasswordAuthenticationFilter.class);
-
-// 授权配置，笼统的配置应放在后面
-http.authorizeRequests()
-    // antMatchers：传递ant表达式，用于匹配路径
-    // regexMatchers：传递正则字符串，用于匹配路径
-    // hasAuthority
-    .antMatchers("/r/r1").hasAuthority("p2")
-    .antMatchers("/r/r2").hasAuthority("p2")
-    .antMatchers("/r/**").authenticated() // 所有/r/**的请求必须认证通过
-    // anyRequest：表示所有请求
-    // permitAll：所有人都可访问
-    .anyRequest().permitAll() // 其它所有请求无需认证
-    
-    .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
-        @Override
-        public <O extends FilterSecurityInterceptor> O postProcess(O object) {
-            object.setSecurityMetadataSource(cmmpFilterInvocationSecurityMetadataSource);
-            object.setAccessDecisionManager(cmmpAccessDecisionManager);
-            return object;
-        }
-    });
-
-
-
-// 未登录时返回json，给前端判断
-// session失效时返回json，给前端判断
-http.sessionManagement()
-    /*
-    控制session生成策略，可选枚举值有：
-      ALWAYS		- 若没有session则创建一个
-      NEVER			- springsecurity不创建session，会从应用中引用
-      IF_REQUIRED	- 默认值，在需要时创建一个session
-      STATELESS		- 不创建也不使用session
-     */
-    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-    .maximumSessions(-1)
-    .sessionRegistry(sessionRegistry);
-
-// session超时的处理
-http.sessionManagement()
-    .invalidSessionStrategy(
-    ((request, response) ->
-     this.errorResponse(
-         request,
-         response,
-         "登录信息过期",
-         "登录信息过期，请重新登录。")));
-
-// 未登录时的处理
-http.exceptionHandling()
-    .authenticationEntryPoint(
-    ((request, response, authException) ->
-     this.errorResponse(
-         request,
-         response,
-         "未登录",
-         "您未登录，请先登录。")));
-```
-
-
-
-
-
