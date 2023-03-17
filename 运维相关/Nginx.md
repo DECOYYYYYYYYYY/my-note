@@ -299,7 +299,7 @@ uri：以`/`开头
 - `=`：路径必须与uri精准匹配。例：仅能匹配 `/abc`、`/abc?a=1` 等
 - `~`：表示uri为正则表达式，且区分大小写
 - `~*`：表示uri为正则表达式，且不区分大小写
-- `^~`：与不带符号一致，但如果匹配成功，则停止其他location的匹配
+- `^~`：与不带符号一致
 
 
 
@@ -313,6 +313,15 @@ uri：以`/`开头
   - 若location的uri以 / 结尾，alias也必须是以 / 结尾
 
 
+
+location块的匹配：nginx只会执行一个location块
+
+1. 检查使用前缀字符串的 locations，在使用前缀字符串的 locations 中选择最长匹配的，并将结果进行储存。
+2. 如果符合带有 = 修饰符的 URI，则立刻停止匹配
+3. 如果符合带有 ^~ 修饰符的 URI，则也立刻停止匹配。
+4. 如果不满足2和3，使用1中记住的最长匹配前缀字符串location，按照定义文件的顺序，检查正则表达式，匹配到就停止。
+5. 当正则表达式匹配不到的时候，使用之前储存的前缀字符串
+   
 
 ### 全局变量
 
@@ -413,7 +422,7 @@ ngx_http_gzip_static_module模块的相关指令：
 
 
 
-`proxy_pass URL;`：查定被代理服务器的地址
+`proxy_pass URL;`：指定被代理服务器的地址
 
 - 适用块：location
 
@@ -455,7 +464,7 @@ ngx_http_gzip_static_module模块的相关指令：
 
 
 
-`rewrite_log on|off;`：是否开启重写日志的输出，默认off
+`rewrite_log on|off;`：是否开启重写日志（输出于access.log）的输出，默认off
 
 - 适用块：http、server、location
 
