@@ -790,3 +790,64 @@ configure(HttpSecurity http)方法中：
 ```java
 http.csrf().disable(); // 关闭CSRF跨域保护
 ```
+
+
+
+### controller获取用户信息
+
+#### 注入Principal获取登录时候的用户名
+
+假设我们提交登录的时候用户名使用是用户名与密码，那么我们AuthenticationToken的Principal中存储的是用户名字段，在默认逻辑下，登录验证后的Authentication字段会与登录请求时候保持一致，那么Authentication中的Principal便是登录的用户名。下面一段Controller的代码便是通过Spring的注入机制获取上下文中的Principal对象。
+
+```java
+public UserModel findUser(Principal principal)  {
+    UserModel userModel = userService.findOneByUsername(principal.getName());
+    return userModel;
+}
+```
+
+#### 注入UserDetails获取数据中的UserDetails特有信息
+
+这种场景通常是因为登录时候使用的的登录标识信息与我们需要使用的信息不一致，最常见的场景是，系统支持使用手机号和用户名进行登录，但是数据库中的查询逻辑我们只想支持用户表中的用户名。如果从Principal获取，我们无法判断存储的是手机号还是用户名。那么我们便可以通过注入UserDetails对象，来获取Authentication的details字段中UserDetails信息。
+
+```java
+public UserModel findUser(UserDetails userDetails)  {
+    UserModel userModel = userService.findOneByUsername(userDetails.getUsername());
+    return userModel;
+}
+```
+
+#### 注入Authentication获取更多的信息
+
+如果Principal和UserDetails中的用户身份信息都不足以满足当前业务使用从场景，比如你需要验证当时存储在details的一些自定义结构信息，那么我们可以通过在Controller层注入Authentication直接操作当前上下文的中Authentication对象。 当我们明白了如何在Controller中操作Authentication之后，我们为了进行偷懒也可以ControllerAdvice中对Authentication进行拦截转型，将明确类型的User实现类实例放置于上下中，以便Controller更容易的进行注入:
+
+```java
+@ControllerAdvice
+public class CurrentUserAdvice {
+    @ModelAttribute()
+    public JwtUser currentUser(Authentication authentication) {
+        JwtUser jwtUser = null;
+        if(authentication!=null) {
+             jwtUser = (JwtUser)authentication.getDetails();
+        }
+        return jwtUser;
+    }
+}
+```
+
+那么我们在Controller只需要通过@ModelAttribute去注入。
+
+```less
+    public UserModel findUser(@ModelAttribute() JwtUser JwtUser)  {
+        UserModel userModel = userService.findOneById(JwtUser.getId());
+        return userModel;
+    }
+```
+
+
+
+作者：废柴大叔阿基拉
+链接：https://juejin.cn/post/6844904142037581831
+来源：稀土掘金
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+

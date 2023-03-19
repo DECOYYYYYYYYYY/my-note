@@ -1974,7 +1974,7 @@ class ApplicationTests {
 ```java
 // 空值校验
 @NotNull // 不得为null
-@NotEmpty // 不得为null，且长度必须大于0
+@NotEmpty // 用于String与集合，不得为null，且长度必须大于0
 @NotBlank // 用于String，不能为null，且调用trim()后，长度必须大于0
 
 // 长度校验
@@ -2775,7 +2775,49 @@ private Integer deleted;
 
 - value为正常数据的值，delval为删除数据的值
 - 完成后运行删除方法，会自动使用逻辑删除而非物理删除
-- 在配置文件中设置相关信息后，无需再添加@TableLogic注解
+- 在配置文件中设置相关信息后，无需设置@TableLogic注解的值，但仍需添加该注解
+
+
+
+### 服务类简化
+
+原：
+
+```java
+public interface UserService{
+	public List<User> findAll();
+}
+
+@Service
+public class UserServiceImpl implements UserService{
+    @Autowired
+    private UserDao userDao;
+    
+	public List<User> findAll(){
+        return userDao.selectList(null);
+    }
+}
+```
+
+简化：借助IService和ServiceImpl
+
+```java
+public interface UserService extends IService<User>{}
+
+@Service
+public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserService{}
+```
+
+
+
+#### service实现类
+
+> 下列中的泛型T代指创建service时传入的实体类
+
+```java
+// 插入数据至数据库，会将自动生成的id回写至实体类中
+boolean save(T entiry)
+```
 
 
 
@@ -2818,9 +2860,7 @@ private Integer deleted;
 
   
 
-### 简化开发
-
-#### 代码生成器
+### 代码生成器
 
 导入依赖：
 
@@ -2891,33 +2931,4 @@ public class CodeGenerator {
 
 运行代码生成类完成代码生成
 
-#### 服务类简化
-
-原：
-
-```java
-public interface UserService{
-	public List<User> findAll();
-}
-
-@Service
-public class UserServiceImpl implements UserService{
-    @Autowired
-    private UserDao userDao;
-    
-	public List<User> findAll(){
-        return userDao.selectList(null);
-    }
-}
-```
-
-简化：借助IService和ServiceImpl
-
-```java
-public interface UserService extends IService<User>{}
-
-@Service
-public class UserServiceImpl extends ServiceImpl<UserDao, User> implements UserService{}
-```
-
-- 此时，LambdaQueryWrapper改为从
+- 

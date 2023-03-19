@@ -128,6 +128,8 @@ let A2 = computed(() => A0.value + A1.value)
     />
     ```
   
+    - 上例中modelValue为默认名，可用 `v-model:xx` 将它更改为xx
+  
   - 所添加的修饰符可以通过 `modelModifiers` prop 在组件内访问到，其默认值为空对象。有修饰符时，会将 `修饰符名:true` 的键值对添加进该对象中
   
 
