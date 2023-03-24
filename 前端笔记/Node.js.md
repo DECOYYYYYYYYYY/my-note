@@ -78,6 +78,7 @@ Buffer：缓冲区，Node.js内置的类。
 - `Buffer.alloc(字节数)` 返回指定大小的Buffer对象
 - `Buffer.allocUnsafe(字节数)` 返回指定大小的Buffer对象，创建时不清空内存的数据，有残留数据
 - `Buffer.toString()` 返回转换出来的字符串
+- `Buffer.concat(Buffer数组, 生成buffer的字节数)`：合并生成大buffer实例
 
 ## Node.js自带包
 
