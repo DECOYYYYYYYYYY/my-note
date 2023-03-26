@@ -1725,7 +1725,7 @@ spring-boot-starter-web：该依赖引入了spring-web、spring-webmvc 和 tomec
 
 - 方法一：直接使用 `@Value("${一级属性.二级属性}")` 即可读取
 
-  - 注意：${}实际可用于任何注解；${}会被maven导致在非默认配置文件中无法使用，可采用 `@@一级属性.二级属性` 替代
+  - 注意：${}实际可用于任何注解；${}会被maven识别，导致在非默认配置文件中无法使用，可采用 `@@一级属性.二级属性` 替代
 
 - 方法二：配置文件的所有数据会被封装到 `Environment` 对象中，使用 `@Autowired` 获取
 
@@ -1832,6 +1832,7 @@ server:
 	port: 8080 # 开放端口
 	servlet:
 		session:
+			context-path: /sp # 应用访问路径前缀，swagger和controller都需要添加该前缀访问
 			timeout: 3600 # session超时秒数，若小于60，以60为准，超过该时间没有访问系统，则session过期
 			cookie:
 				name: SESSIONID # sessionid在cookie中的名字

@@ -132,6 +132,8 @@
 
 ### 配置类
 
+> 配置类中某些方法需要返回json字符串，本篇中使用fastjson库作演示，方便展示需要返回的信息，实际使用中可用jackson将统一响应对象转换为json
+
 #### 基础授权配置
 
 configure(HttpSecurity http)方法中：
@@ -194,7 +196,7 @@ url匹配方法：
 
 
 
-指定无需认证的URL，在配置类中的configure(WebSecurity web)方法中：
+全局忽略URL，在配置类中的configure(WebSecurity web)方法中：
 
 ```java
 web.ignoring()
@@ -597,7 +599,8 @@ http.logout()
     .logoutSuccessHandler(成功登出处理器实例) // 成功登出处理器，有该项则忽略logoutSuccessUrl
     .addLogoutHandler(登出处理器实例) // 登出处理器
     .clearAuthentication(true) // 登出后清除认证状态
-    .invalidateHttpSession(true); // 登出后销毁session
+    .invalidateHttpSession(true) // 登出后销毁session
+	.deleteCookies("JSESSIONID"); // 登出后删除cookie中的指定字段
 ```
 
 > 登出处理器 会被调用来执行登出逻辑，然后再调用 成功登出处理器 来处理成功登出后的响应
@@ -656,7 +659,8 @@ http.sessionManagement()
     .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED) // session生成策略
     .maximumSessions(1) // 同一用户同时在线的最大session数（如在不同端登录该用户），设为-1表示无限制
     .maxSessionsPreventsLogin(false) // 达到最大session数后，是否保留已经登录的用户。为true，新用户无法登录；为 false，旧用户被踢出
-    .expiredSessionStrategy(用户踢出处理器实例) // 用户踢出处理
+    .expiredUrl("/xxx") // 用户被提出时重定向的url
+    .expiredSessionStrategy(用户踢出处理器实例) // 用户踢出处理，会使expiredUrl失效
 ```
 
 
