@@ -80,9 +80,9 @@ Buffer：缓冲区，Node.js内置的类。
 - `Buffer.toString()` 返回转换出来的字符串
 - `Buffer.concat(Buffer数组, 生成buffer的字节数)`：合并生成大buffer实例
 
-## Node.js自带包
 
-### fs
+
+## fs
 
 fs模块用于操作文件系统
 
@@ -146,7 +146,9 @@ fs模块用于操作文件系统
 - `fs.watchFile('文件路径'[, 配置对象],(curr, prev)=>{})` 当文件发生变化时，执行回调函数
   - 回调函数参数：`curr` 当前文件的状态；`prev` 修改前文件的状态。两个参数都是stats对象
 
-### path
+
+
+## path
 
 `const {resolve} = require('path');`
 

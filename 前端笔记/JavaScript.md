@@ -445,7 +445,7 @@ static [Symbol.species]: () => 构造函数
   标签:循环语句1
   ```
 
-- break 和 continue 语句：仅用于循环语句内，退出指定循环/回到指定循环顶部
+- break 和 continue 语句：仅用于循环语句内，退出指定循环 / 跳过本次循环，执行下次循环（会先判断循环条件）
 
   ```js
   break [标签];
@@ -2480,7 +2480,7 @@ window 的布局属性：
 
 
 
-location对象：
+window.location对象：
 
 - 可读写属性：
   - `href`：整个URL
@@ -2499,14 +2499,14 @@ location对象：
 
 
 
-navigator对象：
+window.navigator对象：
 
 - 属性：
   - `userAgent`：只读，浏览器用于 HTTP 请求的用户代理头的值的字符串
 
 
 
-history对象：
+window.history对象：
 
 - 方法：
   - `back()`：后退
@@ -2518,6 +2518,31 @@ history对象：
     - url：状态的url，默认为该页面的url
     - 该操作会触发popstate，但不会触发hashchange（即使hash已改变）
   - `replaceState(同pushState)`：修改当前历史记录实体，url必须同源
+
+
+
+### 本地存储
+
+> 以键值对的方式存储，value为字符串类型，一般转换为JSON
+
+window.sessionStorage：会话存储
+
+- 生命周期：当前页面关闭时销毁。大小：5MB
+- 方法：`setItem('key', value)` / `getItem('key')` / `removeItem('key')`
+
+
+
+window.localStorage：永久存储
+
+- 生命周期：永久，除非人为删除。大小：5MB甚至更大
+- 方法：`setItem('key', value)` / `getItem('key')` / `removeItem('key')`
+
+
+
+cookie：用于浏览器和服务器端进行通信
+
+- 最大4kb；每次发送请求都携带cookie信息；保存在浏览器端；容易被截获；
+- 生命周期：会话cookie、人为设置cookie
 
 
 
@@ -2794,7 +2819,14 @@ window.open(url)
 ```
 
 2. a标签`< a href="/images/download.jpg" download="myFileName">`
-3. 文件流
+
+3. 下载js生成的内容：生成URL用a元素下载
+
+   ```js
+   objectURL = URL.createObjectURL(object); // 可传入File、Blob、MediaSource对象
+   ```
+
+4. 文件流
 
 
 
@@ -2812,7 +2844,7 @@ window.open(url)
 - option可选值：
   - `alpha: bool` 是否开启透明度
 
-实例属性与方法：
+实例属性与方法如下：
 
 #### 矩形绘制
 

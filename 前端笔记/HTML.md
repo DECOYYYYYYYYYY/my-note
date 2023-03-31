@@ -6,7 +6,7 @@
 
 网站favicon图标：
 
-png转换为ico格式图标：http://www.bitbug.net/ 、  在head标签中放入代码：<link rel=”shortcut icon” href=”图标路径” />
+png转换为ico格式图标：http://www.bitbug.net/ 、  在head标签中放入代码：<link rel="shortcut icon" href="图标路径" />
 
 ## 综述
 
@@ -136,6 +136,10 @@ HTML元素的主要部分有：
 
 ### 容器
 
+`<span></span>`：行内容器，无特殊样式与功能
+
+
+
 `<div></div>`：块级容器，无特殊样式与功能，相似的语义标记元素：
 
 - header：文档的标题、标志或导航内容
@@ -146,10 +150,6 @@ HTML元素的主要部分有：
 - section：将文档分为不同部分，通常用于组织文章或页面结构
 - article：通常用于表示一篇文章或博客
 - hgroup：关联标题与次要内容，通常将一个标题元素和任意个段落元素置于其中
-
-
-
-`<span></span>`：行内容器，无特殊样式与功能
 
 
 
@@ -172,6 +172,8 @@ HTML元素的主要部分有：
 
 - `open="布尔值"`：对话框是否激活（显示），推荐使用 `show() / showModal()` 来激活
 
+
+
 ### 文本
 
 块级元素：
@@ -179,8 +181,6 @@ HTML元素的主要部分有：
 `<h1></h1>`：标题，由h1-h6逐渐变小，标题自动加粗
 
 `<p></p>`：段落，文本会根据浏览器大小自动换行，段落之间有一定间距
-
-
 
 
 
@@ -194,11 +194,7 @@ HTML元素的主要部分有：
 
 `<ins></ins>` / `<u></u>`：下划线
 
-`<br />`：换行，相当于\n
-
-
-
-字符实体：
+`<br />`：换行，相当于 `\n`
 
 
 
@@ -207,35 +203,48 @@ HTML元素的主要部分有：
 `<link />`：外部资源链接元素，可选属性：
 
 - `href="url"`：资源地址（hypertext reference）
-- `rel=“可选值1 可选值2”`：relationship，描述资源与当前文档的关系，常用可选值：
+- `rel="可选值1 可选值2"`：relationship，描述资源与当前文档的关系，常用可选值：
   - stylesheet（样式表）、icon（文档图标）、shortcut icon（兼容写法）、preload
-- `sizes=“64x64”`：定义icons大小，单位为px，也可指定属性该为any，表示可伸缩为任意尺寸
-- `as=“可选值”`：仅在rel属性设置为preload或prefetch时可用，规定加载内容的类型
+- `sizes="64x64"`：定义icons大小，单位为px，也可指定属性该为any，表示可伸缩为任意尺寸
+- `as="可选值"`：仅在rel属性设置为preload或prefetch时可用，规定加载内容的类型
   - 可选值：audio、document【用于iframe元素】、image、style、script、video
+- `crossorigin="枚举值"`：定义元素如何处理跨域请求
+  - `anonymous` | `""`：请求使用 CORS 标头，跨域请求不交换用户凭据
+  - `use-credentials`：请求使用了 CORS 标头，总是交换用户凭据
 
 
 
 `<a></a>`：超链接（anchor），可选属性：
 
-- `href=”目标URL”`：目标URL，也可以传入 `#元素ID` 用于导航到该元素，`#` 或 `#top` 表示返回文档顶部
-- `target="值"`：指定在何处显示链接的资源。取值为window、tab、
--  _self（默认）：当前页面打开     _blank：新窗口打开
+- `href="目标URL"`：目标URL，也可以传入 `#元素ID` 用于导航到该元素，`#` 或 `#top` 表示返回文档顶部
+- `target="值"`：指定在何处显示链接的资源。可选值：
+  - window、tab、iframe等浏览器上下文的name属性值：在指定上下文中加载
+  - `_self`：默认值，当前页面加载
+  - `_blank`：新窗口打开
+  - `_parent`：当前浏览上下文的父上下文中加载，如iframe中的a元素指定该属性，在iframe所在文档中加载资源
+  - `_top`：在顶级浏览上下文中加载
 - `download`：指示下载URL而非导航到它，可给属性传入值，作为下载的文件名（文件名可带路径）
-- 内部链接：直接链接内部页面名称即可，如”index.html”          跳转到当前页面：”#”
-- 下载链接：URL若为文件或压缩包，则会下载文件    锚点链接：URL为”#id”  点击会跳转到页面的指定位置
-- 跳转需要：在网页元素处设置id属性
+- `crossorigin`：[详见link的同名属性](#链接)
 
 
 
-`<script src=“xx”></script>`										定义客户端脚本（如JavaScript）
-特性：
-type=“可选值”【指定script元素包含或src引用的脚本的语言，值为MIME类型，若为js建议不写type】
-text/javascript、text/ecmascript、application/ecmascript、application/javascript、module【视为js模块执行】
-src=”资源URL”【从外部引用文件】				charset=”UTF-8”【指定src引用文件的字符编码】
-async【HTML5，异步加载脚本，即脚本与HTML并行加载，脚本加载完后暂停HTML加载，执行脚本，然后继续加载HTML】
-defer【仅对外部脚本有效，延迟加载脚本，脚本与HTML并行加载，脚本延迟到HTML加载完成后执行】
-defer会在执行完脚本后触发DOMContentLoaded事件，async与DOMContentLoaded事件无关
-integrity=“sha384-xxxxxx”【指定哈希值生成算法和实际哈希值，当获取资源时会进行校验，若哈希不一致，则不执行】
+`<script></script>`：嵌入或引用可执行脚本（如JS），可选属性：
+
+- `src="资源URI"`：引用外部脚本
+- `type="可选值"`：指定script元素包含或src引用的脚本的语言，值为MIME类型
+  - 可选值：text/javascript（默认值）、text/ecmascript、application/ecmascript、application/javascript、module（视为js模块执行）
+- `text="xx"`：元素的文本内容，元素插入到dom后，该属性会被解析为代码
+- `async`：异步加载脚本，加载完后立刻执行（执行时可能阻塞HTML加载）
+- `defer`：异步加载脚本，加载完后，在DOMContentLoaded事件前执行脚本（仅对外部脚本有效，即带有src属性的脚本）
+- `crossorigin`：[详见link的同名属性](#链接)
+
+
+
+`<noscript></noscript>`：页面中无法使用脚本时，显示该元素。元素可包含：
+
+- 若该元素在head元素中，仅能包含link、style、meta元素
+- 其他情况下，能包含任意元素，但后代中不能有 noscript 元素
+
 
 
 `<iframe></iframe>`：内联框架元素（块级），用于将另一个HTML页面嵌入当前页面
@@ -255,30 +264,255 @@ integrity=“sha384-xxxxxx”【指定哈希值生成算法和实际哈希值，
 
 ### 表格
 
+```html
+<table>
+    <thead>
+        <tr>
+            <th colspan="2">The table header</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>The table body</td>
+            <td>with two columns</td>
+        </tr>
+    </tbody>
+</table>
+```
+
+`<table></table>`：表格元素，允许包含的内容（按顺序）：
+
+- 一个 caption 元素
+- 多个 colgroup 元素
+- 一个 thead 元素
+- 多个 tbody 或 tr 元素（两者不能同时作为 table 的子元素出现）
+- 一个 tfoot 元素
+
+
+
+`<caption></caption>`：标题容器
+
+
+
+`<colgroup></colgroup>`：定义表格的列组，内部只能包含 col 元素
+
+- 给 该元素 或 col元素 设置样式，可应用到对应列上
+- 可选属性：
+  - `span="正整数"`：该元素所跨越的列数，若设置该属性，该元素必须为空元素
+- `<col></col>`：定义列组，可选属性为 span，作用同上
+
+
+
+`<thead></thead>`：表头，可包含任意个tr元素
+
+`<tbody></tbody>`：表格主体，可包含任意个tr元素
+
+`<tfoot></tfoot>`：汇总行，可包含任意个tr元素
+
+
+
+`<tr></tr>`：表格行，可混合包含任意个 td 或 th 元素
+
+`<th></th>`：表头单元格容器，可选属性：
+
+- `colspan/rowspan="正整数"`：单元格所占的 列数/行数
+- `headers="空格分隔id字符串"`：与其他th元素关联，字符串是对应元素的id
+- `scope="枚举值"`：定义该元素关联的单元格，枚举值有：
+  - auto
+  - row：表头关联一行中所有单元格
+  - col：表头关联一列中所有单元格
+  - rowgroup：表头属于一个行组并与其中所有单元格相关联
+  - colgroup：表头属于一个列组并与其中所有单元格相关联
+
+`<td></td>`：数据单元格容器，可选属性同 th（scope属性除外）
+
+
+
 ### 列表
+
+`<ul></ul>`：无序列表，只能包含任意个li元素
+
+`<ol></ol>`：有序列表，只能包含任意个li元素
+
+`<li></li>`：列表项容器
+
+
+
+`<dl></dl>`：描述列表（小标题+列表项），可包含任意个指定DOM结构，DOM结构可以是：
+
+1. 一个或多个 dt 元素，以及一个或多个 dd 元素
+2. 一组或多组div元素，div内包含上述dt dd 结构
+
+`<dt></dt>`：术语定义（小标题）容器
+
+`<dd></dd>`：术语描述（列表项）容器
+
+
 
 ### 表单
 
 表单中只有一个单行文本输入字段时，按下回车会自动触发submit事件
 
+#### 表单域
+
+`<form></form>`：表单域，可选属性：
+
+- `name="表单名"`：不得为空，且是唯一值
+- `accept-charset="空格分隔列表"`：服务器支持的字符编码，默认值为UNKNOWN，表示与该文档编码相同
+- `autocomplete="on|off"`：开启表单内input元素的自动补全
+- `action="URL"`：表单提交地址 
+- `method="post|get|dialog"`：提交方法
+  - dialog：若表单在dialog中，在提交时关闭对话框
+- `enctype="可选值"`：若提交方法为post，该属性表示提交给服务器的MIME类型，可选值：
+  - `application/x-www-form-urlencoded`：默认值
+  - `multipart/form-data`：用于提交文件，当表单包含 type=file 的 input 元素时使用此值
+  - `text/plain`：用于调试
+- `novalidate`：表单提交时不需要验证表单
+- `target="xx"`：提交表单后，在哪显示响应信息，[详见a元素同名属性](#链接)
+
+
+
+#### 表单控件
+
+`<label></label>`：标签文本，与表单控件关联
+
+- form：详见input元素
+- `for="控件id"`：与指定控件关联，也可以直接将控件作为label元素的子元素来建立关联
+
+
+
+`<select></select>`：选项菜单，内部可包含任意option或optgroup元素，可选属性：
+
+- name、disabled、form、autocomplete、required：详见input元素
+- `multiple`：支持多选，此时会显示为一个滚动列表框
+- `size`：显示滚动列表框时，同时可见的行数
+
+`<option></option>`：选项，可选属性：
+
+- `disabled`、`selected`：选项禁用 / 在一开始就选中
+- `label="xx"`：表示选项含义的文本，默认值为元素内的文本内容
+- `value="xx"`：选项在提交时的值，默认值为元素内的文本内容
+
+`<optgroup></optgroup>`：选项分组，可包含任意个option元素，属性：
+
+- `disabled`：可选属性，选项组禁用
+- `label="xx"`：必选属性，选项组名
+
+
+
+`<textarea></textarea>`：文本域，可选属性：
+
+- 元素内的内容：作为value的初始值，可通过DOM的value属性更改
+- name、disabled、form、maxlength、minlength、placeholder、readonly、required、autocomplete：详见input元素
+- `cols="正数"`：可视宽度（列数），默认为20
+- `rows="正数"`：显示的文本行数
+- `spellcheck="default|true|false"`：是否开启拼写检查
+- `warp="soft|hard"`：是否自动换行，hard会在文本到达最大宽度时，自动插入换行符；soft则不会，默认值为soft
+
+
+
+`<input />`：表单输入元素，可选属性：
+
+- `value="xx"`：初始值，DOM的value属性表示当前值，提交时会提交当前value值
+- `name="名称"`：控件名，提交时随着值一起提交
+- `autocomplete="on|off"`：是否开启自动补全，优先级比表单域设置的同名属性高
+- `disabled`：禁用
+- `form="表单域id"`：关联表单域，若作为表单子元素，则无需填写该属性
+- 表单验证属性：[详见MDN](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/input#%E5%B1%9E%E6%80%A7)
+- `type="枚举值"`：指定类型，枚举值：
+  - text：默认值，单行输入文本框
+  - email、number、password、tel、url、search：类似text，浏览器与设备有特殊支持
+  - button：无默认行为的按钮，上面显示 value 属性的值
+  - reset：重置按钮（不推荐使用） 
+  - submit、image：提交按钮 / 图像化的提交按钮
+    - image可设置img元素相同的属性
+    - 两者的额外属性：formaction、formenctype、formmethod、formnovalidate、formtarget。这些属性用于覆盖表单域中的同名属性（去掉前缀后），取值也与对应属性相同。
+  - radio、checkbox：单选框 / 复选框
+    - 单选框在name值相同的选项中只能选中一个
+    - 两个额外属性：`checked`，表示是否默认选中。DOM实例的checked属性表示当前选中状态
+    - 两者在提交时，会将选中状态的input元素的value属性提交
+  - range：数字拖动条，默认值为正中间的值，可用min和max规定范围
+  - month、week：年月输入 / 年与周数输入
+  - date、time、datetime-local：日期输入（年月日）/ 时间输入（时分）/ 日期与时间输入
+  - color：指定颜色（取色器）
+  - file：文件选择，其value属性为已选择文件的路径，可通过dom实例的files属性获取已选择文件信息。额外属性如下：
+    - `accept="逗号分隔的文件类型说明符"`：接受的文件类型，说明符可以是以下类型
+      1. 扩展名：如 `.jpg`、`.pdf` 等
+      2. MIME类型字符串
+      3. `audio/*`、`video/*`、`image/*`：任意音频 / 视频 / 图片文件
+    - `capture="可选值"`：不选择文件，改为通过相机或媒体选择器获取（accept需要是图片或视频）
+      - 可选值有：user / environment（使用前置/后置摄像头）
+    - `multiple`：是否允许多选文件
+  - hidden：不显示的控件，但值仍会提交到服务器
+
+
+
 ### 多媒体
-
-
 
 `<img />`：图像元素（行内）
 
 - 可选属性： 
   - `src="图像URL"`
   - `alt="文本"`：alt为替换文本，图像无法显示时显示的文字
-  - `title=”文本”`：提示文本，鼠标悬浮在图像上时显示的文字 
-  - `width/height=”像素格式”`：图像宽高
+  - `width/height="像素格式"`：图像宽高
   - `decoding="枚举值"`：图像解码方式，枚举值：sync（同步解码），async（异步解码），auto（默认值，浏览器自动判断）
   - `loading="枚举值"`：图像加载方式，枚举值：eager（立即加载），lazy（当图片和视口接近到某个距离时才加载）
   - `sizes="(max-height: 1500px) 1000px, 800px"`：根据媒体查询调整图片的预期宽度，需要同时设置srcset，否则无效
-  - `srcset=“URL 条件, URL2 条件2”`：达成指定条件时，改变URL，可选条件：
+  - `srcset="URL 条件, URL2 条件2"`：达成指定条件时，改变URL，可选条件：
     - `2x`：在屏幕密度为2x时，该条件无需设置sizes，较为方便
     - `256w`：单位为像素，w仅做关键字，根据sizes指定的预期宽度匹配该条件（取最接近的）
+  - `crossorigin`：[详见link的同名属性](#链接)
 - 服务器端图像映射：待补充
+
+
+
+`<video></video>`：视频，可包含任意个source元素，可选属性：
+
+- `crossorigin`：[详见link的同名属性](#链接)
+- `src="url"`：视频源，也可由source元素提供
+- `poster="url"` ：封面图片
+- `width/height="数值"` 设置宽高（单位：像素），不支持百分比
+- `controls`：显示播放控制面板
+- `muted`：静音播放
+- `autoplay`：视频就绪自动播放（chrome需添加muted才生效）
+- `loop`：循环播放
+- `preload="枚举值"`：视频播放前的动作（若设置了autoplay则忽略此属性）
+  - auto：预加载
+  - none：不预加载视频
+  - metadata：仅预先获取视频的元数据（如长度）
+
+
+
+`<source />`：多媒体资源，可选属性：
+
+- `src="url"`：资源的源
+- `type="MIME类型"`：资源类型，如：`video/mp4`、`video/ogg` 等
+
+
+
+`<audio></audio>`：音频，可包含任意个source元素
+
+- 可选属性：src、controls、autoplay（chrome自动禁用）、loop、crossorigin、muted、preload：详见video元素
+
+
+
+### 其他
+
+按钮元素：`<button></button>`
+
+水平分割线（horizontal rule）：`<hr />`
+
+ruby注释（音标）：`<ruby></ruby>`
+
+- `<ruby>夼<rp>(</rp><rt>kuang</rt><rp>)</rp></ruby>`
+- rt内表示注释，rp内表示兼容性不好时显示内部内容，兼容性好时不显示内部内容
+
+度量衡（类似磁盘空间指示条）：`<meter></meter>`
+
+- `<meter value="5" min="0" low="2" high="7" max="10">5 out of 10</meter>`
+  当value大于high值时会变色警告
+
+进度条：`<progress max="100" value="0"></progress>`
 
 ## 全局属性
 
@@ -459,3 +693,17 @@ integrity=“sha384-xxxxxx”【指定哈希值生成算法和实际哈希值，
 
 - 被关联元素必须：不是某个数据项的后代
 
+
+
+## 字符实体
+
+XML和HTML的字符实体引用：[参考W3school](https://www.w3school.com.cn/html/html_entities.asp)
+
+| 原义字符 | 等价字符实体 |
+| :------- | :----------- |
+| space    | `&nbsp;`     |
+| <        | `&lt;`       |
+| >        | `&gt;`       |
+| "        | `&quot;`     |
+| '        | `&apos;`     |
+| &        | `&amp;`      |

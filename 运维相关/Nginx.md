@@ -55,8 +55,6 @@ Nginx（读音为“engine x”），是一个高性能的HTTP和反向代理的
 
 
 
-
-
 ## 配置文件
 
 > Nginx的核心配置文件为 conf/nginx.conf ，conf目录下的 .default 文件均为备份文件
@@ -201,6 +199,20 @@ http {
   - `@15h30m`：每天的15点30分过期
   - `epoch`：设置Expires为1970年0点，即不缓存
   - `max`：设置Expires为2037最后一秒，过期时间设为10年后
+  
+- `autoindex on|off;`：是否将目录的文件列出，以供下载。默认值：off
+
+- `autoindex_format html|xml|json|jsonp;`：目录列表的格式，默认值：html
+
+- `autoindex_exact_size on|off;`：目录列表格式为html时生效，是否展示文件的详细大小
+
+  - `on`：默认值，展示详细大小，单位为bytes
+  - `off`：展示大概大小，单位为KB、MB或GB
+
+- `autoindex_localtime on|off;`：目录列表格式为html时生效，文件展示时间格式
+
+  - `on`：展示文件所在服务器的时间
+  - `off`：默认值，展示 GMT 时间
 
 
 
@@ -244,6 +256,10 @@ server {
 
 适用于server、location的指令：
 
+- `try_files 多个uri;`：会按顺序寻找资源，把第一个找到的资源作为目标资源
+
+  - 前端history路由的适配：`try_files $uri $uri/ /index.html;`
+
 - `set $开头变量名 值;`：设置变量
 
 - `if (条件表达式) {...}`：if语句
@@ -278,8 +294,6 @@ server {
 - `return [状态码] URL;` / `return 状态码 [响应体内容];`：立即完成该请求的处理，向客户端响应，也可用于if中
 
   
-
-
 
 ### location块
 
@@ -323,6 +337,8 @@ location块的匹配：nginx只会执行一个location块
 5. 当正则表达式匹配不到的时候，使用之前储存的前缀字符串
    
 
+
+
 ### 全局变量
 
 | 变量               | 说明                                                         |
@@ -348,6 +364,7 @@ location块的匹配：nginx只会执行一个location块
 | $request_method    | 变量中存储了客户端的请求方式，比如"GET","POST"等             |
 | $request_filename  | 变量中存储了当前请求的资源文件的路径名                       |
 | $request_uri       | 变量中存储了当前请求的URI，并且携带请求参数，比如http://192.168.200.133/server?id=10&name=zhangsan中的"/server?id=10&name=zhangsan" |
+| $uri               | 当前请求的URI，相比$request_uri，不携带请求参数，如上例将返回"/server" |
 
 ## 压缩
 

@@ -177,7 +177,7 @@ css选择器写在媒体查询选择器`{}`内部
 
 继承属性：`某属性: inherit` 规定应该从父元素继承该属性的值
 
-### 字体属性
+### 文本
 
 - 字体系列：`font-family: “Microsoft yahei”, Arial, “宋体”;` 
   - 字体中自带空格的必须加引号，优先使用前面的字体，若无法显示则下一个
@@ -187,8 +187,11 @@ css选择器写在媒体查询选择器`{}`内部
 - 字体样式：`font-style：normal | italic(斜体)| oblique(倾斜)`
 - 字体复合属性：`font：font-style font-weight font-size/-height font-family` 
   - `font-size`和`font-family`属性为必须项
+- 文本域大小的拖拽：`resize:none;` 
 
-### 段落属性
+
+
+### 段落
 
 - 对齐：`text-align: center | left | right | justify(两段对齐); `
   - 设置子元素的行内元素或行内块元素的水平对齐方式
@@ -203,7 +206,9 @@ css选择器写在媒体查询选择器`{}`内部
     - `break-word` 内容将在边界内换行。如果需要，单词内部允许断行
     - css3中更名为`overflow-wrap`，建议同时写`word-wrap`保证兼容
 
-### 列表属性
+
+
+### 列表
 
 - 列表元素标记：`list-style-type: none | disc | circle ...` 
   - `disc`：实心圆，默认；`circle`：空心圆；`square`：实心方块；
@@ -212,7 +217,22 @@ css选择器写在媒体查询选择器`{}`内部
 - 标记框位置：`list-style-position: outside(默认，在主块盒外) | inside`
 - 复合属性：`list-style: <...-type> <...-image> <...-position>`
 
-### 背景属性
+
+
+### 表格
+
+- 表的列宽：`table-layout: auto | fixed`
+
+  - auto：表的列宽会根据包含的内容大小而变化
+  - fixed：表的列宽与列首单元格相同
+
+- 表的边框是否合并：`border-collapse: collapse | separate`
+
+  
+
+
+
+### 背景
 
 - 背景颜色：`background-color: 颜色;` 设置背景色为透明，默认为透明
 - 背景图片：`background-image: none | url(...);`  背景图片显示在背景颜色之上
@@ -231,6 +251,8 @@ css选择器写在媒体查询选择器`{}`内部
   - 形状：默认值为 `ellipse at center ` ，表示渐变形状为椭圆，渐变中心为图形中心。可以指定渐变形状为 `circle` 等
   - 色值描述：`<color> <position>`，例：`#ccc 0%`，表示渐变起始点的颜色为#ccc
 
+
+
 ### 空格处理
 
 `white-space: normal(默认) | nowrap | pre | pre-wrap | pre-line | inherit`
@@ -241,9 +263,15 @@ css选择器写在媒体查询选择器`{}`内部
 - pre-wrap：按pre标签的方式处理，超出容器宽度时，换行
 - pre-line：保留换行符，其他符号同normal
 
-### 元素对齐
 
-行内元素水平居中：给其父元素设置`text-align: center`
+
+### 对齐
+
+`text-align: 可选值`：用于块级容器，控制其内部所有行内内容的水平对齐
+
+- 可选值：left、right、center、justify（两侧对齐，对最后一行无效）
+
+
 
 行内、行内块元素的垂直对齐：`vertical-align: 属性值;`
 
@@ -258,6 +286,8 @@ css选择器写在媒体查询选择器`{}`内部
 
 块级元素水平垂直居中：父元素设置为flex容器，设置该元素 `margin: auto;` 
 
+
+
 ### 元素可见性
 
 `display：none | block；`   不占位置，触发回流和重绘，有株连性（子孙节点全隐藏）
@@ -266,7 +296,9 @@ css选择器写在媒体查询选择器`{}`内部
 
 `pointer-events: none`        设置元素不可用（阻止hover、active触发事件，阻止js点击动作触发事件等）
 
-### 多媒体属性
+
+
+### 多媒体
 
 图片比例：`object-fit: 属性值;`
 
@@ -275,6 +307,8 @@ css选择器写在媒体查询选择器`{}`内部
 - `cover`：保持图片比例，确保图片宽高至少有一个和容器一致
 - `none`：保持图片比例和尺寸
 - `scale-down`：等效于 `none` 和 `contain` 中尺寸较小的那个
+
+
 
 ### 界面样式
 
@@ -288,8 +322,6 @@ css选择器写在媒体查询选择器`{}`内部
 
 `outline:none;`  去除表单选中时的轮廓线
 
-`resize:none;`  禁止文本域大小的拖拽
-
 盒子阴影：`box-shadow: h-shadow v-shadow blur spread color inset;`
 
 - `h-shadow`、`v-shadow` 必填，值为像素值，表示水平和垂直阴影的位置，允许负值
@@ -299,6 +331,8 @@ css选择器写在媒体查询选择器`{}`内部
 
 文字阴影：`text-shadow: h-shadow v-shadow blur color` 属性参考盒子阴影
 
+
+
 ## 盒子模型
 
 盒子模型`box-sizing`：
@@ -306,6 +340,8 @@ css选择器写在媒体查询选择器`{}`内部
 `box-sizing: content-box` 默认，盒子大小为`width`+`padding`+`border`
 
 `box-sizing: border-box` 盒子大小为`width`
+
+
 
 ### 边框
 
@@ -328,6 +364,8 @@ css选择器写在媒体查询选择器`{}`内部
 - 若指定四个值，分别为左上、右上、右下、左下的圆角大小
 - 单独指定某个圆角的大小：`border-top-left-radius: 像素值;` 
 
+
+
 ### 内容
 
 `width: 像素值;`、`height: 像素值;` 设置内容区的宽高
@@ -340,6 +378,8 @@ css选择器写在媒体查询选择器`{}`内部
 - `hidden` 超出部分隐藏
 - `scroll` 不管是否超出，添加滚动条
 - `auto` 超出则添加滚动条
+
+
 
 ### 边距
 
@@ -361,6 +401,8 @@ css选择器写在媒体查询选择器`{}`内部
   - 方法一：为父元素添加边框
   - 方法二：父元素添加内边距
   - 方法三：为父元素添加`overflow:hidden;`
+
+
 
 ## 浮动与定位
 

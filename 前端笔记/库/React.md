@@ -305,10 +305,10 @@ React 中与 HTML 的不同
 高阶组件（HOC）就是参数为组件，返回值为新组件的函数
 HOC 不应该修改传入的组件，会将组件包装在容器组件中组成新组件，传入组件应该接收来自容器组件的所有 prop：
 
-```react
+```jsx
 render() {
-      return <WrappedComponent data={this.state.data} {...this.props} />;
-    }
+    return <WrappedComponent data={this.state.data} {...this.props} />;
+}
 ```
 
 注意：
