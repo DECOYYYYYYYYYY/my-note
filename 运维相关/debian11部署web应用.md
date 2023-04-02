@@ -13,8 +13,21 @@
    # 找到并修改Port字段
    Port 12200
    
-   # 重启服务
+   # 重启服务(注意需先开启防火墙的指定端口)
    systemctl restart ssh
+   ```
+
+2. 防火墙配置
+
+   ```shell
+   ufw status
+   ufw enable
+   ufw disable
+   
+   ufw allow 22/tcp # 开启tcp的22端口
+   ufw allow 22/udp # 开启udp的22端口
+   ufw allow 22 # 开启指定tcp和udp端口
+   ufw deny 22 # 拒绝指定端口(tcp和udp配置同上)
    ```
 
    
@@ -79,9 +92,9 @@
    	# gzip_http_version 1.1;
    	# gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
    
-   
-   	include /etc/nginx/conf.d/*.conf;
-   	include /etc/nginx/sites-enabled/*;
+   	#注释默认配置文件
+   	#include /etc/nginx/conf.d/*.conf;
+   	#include /etc/nginx/sites-enabled/*;
    
    	server {
            listen 80;
@@ -147,7 +160,7 @@
      ```
      Acquire::AllowInsecureRepositories "true";
      ```
-
+   
 6. 确认是否正常运行
 
    ```shell
@@ -175,7 +188,7 @@
      use mysql;
      update user set host='%' where user='root';
      commit;
-     GRANT ALL PRIVILEGES ON *.* TO root@'%';
+     GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
      ```
 
 9. 检查设置是否成功，若root的host参数为%则为成功
@@ -199,7 +212,7 @@
     mysql -u root -p
     mysql> use sandpile;
     mysql> set names utf8;  #设定数据库的编码（针对空数据库）
-    mysql> source /home/backups/wordpress.back.sql;  #导入的命令，数据库备份文档的绝对路径
+    mysql> source /usr/local/sandpile/backend/db/sand.sql;  #导入的命令，数据库备份文档的绝对路径
     mysql> quit;
     ```
     

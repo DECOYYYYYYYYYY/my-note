@@ -437,6 +437,16 @@ ngx_http_gzip_static_module模块的相关指令：
   - redirect : 返回302临时重定向，地址栏会显示跳转后的地址
   - permanent : 返回301永久重定向，地址栏会显示跳转后的地址
 
+- 示例：重定向至其他网址
+
+  ```
+  server {
+      listen 80;
+      server_name zfas56dg49zxc465vs4d56fg4s56dfg.shop;
+      rewrite /(.*) http://sandpile.shop/$1 permanent;
+  }
+  ```
+
 
 
 `proxy_pass URL;`：指定被代理服务器的地址
