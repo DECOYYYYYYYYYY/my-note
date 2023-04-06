@@ -430,6 +430,7 @@ ngx_http_gzip_static_module模块的相关指令：
 
 - 适用块：server、location、if
 - 替换字符串：若以 `http://` 或 `https://` 开头，则不继续处理该请求，直接返回
+  
   - 在替换字符串中可用 `$1`等 获取正则的匹配组，也可以使用$host等[变量](#全局变量)
 - falg可选值：
   - last : 相当于Apache的[L]标记，表示完成rewrite
@@ -499,9 +500,42 @@ ngx_http_gzip_static_module模块的相关指令：
 
 ## SSL
 
-待补充
+> 以下指令需安装ngx_stream_ssl_module模块，可用于stream和server块中
+>
+> 设置以下指令前，需为listen中的端口号后追加ssl关键字，如`listen 443 ssl;`
 
+示例：
 
+```
+server {
+    listen              12345 ssl;
+
+    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers         ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE;
+    ssl_certificate     /usr/local/nginx/conf/cert.pem;
+    ssl_certificate_key /usr/local/nginx/conf/cert.key;
+    ssl_session_cache   shared:SSL:10m;
+    ssl_session_timeout 10m;
+}
+```
+
+`ssl_protocols 多个协议;`：指定支持的协议
+
+`ssl_certificate 文件路径;`：指定PEM格式证书文件
+
+`ssl_certificate_key 文件路径;`：指定证书密钥文件
+
+`ssl_ciphers 多个值;`：指定启用的加密方式
+
+- 默认值：`ssl_ciphers HIGH:!aNULL:!MD5;`
+
+`ssl_session_cache 多个值;`：指定会话缓存策略
+
+- 默认值：`ssl_session_cache none;`
+
+`ssl_session_timeout 时间;`：会话重用时间
+
+- 默认值：`5m`
 
 ## 负载均衡
 
