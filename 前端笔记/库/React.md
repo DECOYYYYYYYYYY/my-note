@@ -298,8 +298,6 @@ React 中与 HTML 的不同
 
 
 
-- 
-
 ### 高阶组件
 
 高阶组件（HOC）就是参数为组件，返回值为新组件的函数
@@ -316,8 +314,6 @@ render() {
 - 不要在 render 方法中使用 HOC（导致子树每次渲染都进行卸载，重新挂载）
 - 记得复制静态方法（一条条复制 或 hoist-non-react-statics）
 - refs 不会被传递（ref 不是 prop 属性），解决方法：通过 React.forwardRef 方法创建组件作为 HOC 返回值
-
-
 
 
 

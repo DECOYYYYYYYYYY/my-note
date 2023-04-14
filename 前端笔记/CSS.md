@@ -310,6 +310,12 @@ css选择器写在媒体查询选择器`{}`内部
 
 
 
+### 交互相关
+
+`user-select:none;`：禁止拖拽选中文字
+
+
+
 ### 界面样式
 
 `cursor: 可选值;` 设置在对象上移动鼠标指针的光标形状
@@ -617,6 +623,8 @@ grid-template-areas:
 `order: 整数` 指定弹性元素的排列顺序，越小越靠前，默认值为0
 
 `align-self: 可选值` 设置单个元素的`align-items`，可选值同`align-items`
+
+> 使flex容器中的第一个或最后一个弹性元素居左或居右对齐：`margin-right/margin-left: auto;`
 
 ## CSS3
 
