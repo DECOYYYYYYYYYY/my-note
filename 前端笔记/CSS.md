@@ -314,6 +314,8 @@ css选择器写在媒体查询选择器`{}`内部
 
 `user-select:none;`：禁止拖拽选中文字
 
+`scroll-behavior: auto|smooth|initial|inherit;`：用于html元素，进行锚点跳转时，是否平滑滚动
+
 
 
 ### 界面样式

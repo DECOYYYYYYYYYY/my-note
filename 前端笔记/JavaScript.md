@@ -2826,6 +2826,31 @@ window.open(url)
 
 4. 文件流
 
+   ```js
+   axios({
+       method: 'GET',
+       url: 'http://10.33.125.17:9333/file/download',
+       responseType: 'blob',
+       timeout: 20000
+   }).then((res) => {
+       const { data, headers } = res
+       // 此处当返回json文件时需要先对data进行JSON.stringify处理，其他类型文件不用做处理
+       // const blob = new Blob([JSON.stringify(data)], ...)
+       const blob = new Blob([data], {type: headers['content-type']})
+       let dom = document.createElement('a')
+       let url = window.URL.createObjectURL(blob)
+       dom.href = url
+       dom.download = '自定义文件名'
+       dom.style.display = 'none'
+       document.body.appendChild(dom)
+       dom.click()
+       dom.remove()
+       window.URL.revokeObjectURL(url)
+   })
+   ```
+
+   
+
 
 
 ## Canvas

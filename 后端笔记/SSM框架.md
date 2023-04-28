@@ -1230,6 +1230,16 @@ public class SpringMvcConfig {}
     ```java
     public String fn(@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss") Date date)
     ```
+  
+- 接收表单提交的文件：
+
+  ```java
+  @PostMapping(value = "/upload")
+  String uploadFileBufferToLocal(MultipartFile file) {
+      file.getOriginalFilename(); // 获取文件名
+      file.getInputStream(); // 获取输入流，读取文件
+  }
+  ```
 
 
 
@@ -1339,6 +1349,32 @@ public Object toJsonPOJO(){
     User user = new User();
     user.setAge(15);
     return user; // 也可以返回集合,会转换为json数组
+}
+```
+
+响应文件：
+
+```java
+@GetMapping("/download")
+public void downloadLocal(HttpServletResponse response) throws IOException {
+    String path = "D:\\FTPRespository\\Vue.md";
+    // 读到流中
+    InputStream inputStream = new FileInputStream(path);// 文件的存放路径
+    String filename = new File(path).getName();
+    
+    response.reset();
+    response.setContentType("application/octet-stream");
+    response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(filename, "UTF-8"));
+
+    ServletOutputStream outputStream = response.getOutputStream();
+    byte[] b = new byte[1024];
+    int len;
+
+    //从输入流中读取一定数量的字节，并将其存储在缓冲区字节数组中，读到末尾返回-1
+    while ((len = inputStream.read(b)) > 0) {
+        outputStream.write(b, 0, len);
+    }
+    inputStream.close();
 }
 ```
 

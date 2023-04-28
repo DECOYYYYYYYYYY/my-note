@@ -44,7 +44,7 @@ const element = <div tabIndex="0">Hello!</div>; // 使用引号，来将属性�
 
 // 本质为
 const element = React.createElement(
-  'div',
+  'div', // 该参数也可直接传入组件class
   {tabIndex: '0'},
   'Hello!'
 );
