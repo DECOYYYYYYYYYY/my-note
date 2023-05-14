@@ -65,13 +65,6 @@
    	default_type application/octet-stream;
    
    	##
-   	# SSL Settings
-   	##
-   
-   	#ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3; # Dropping SSLv3, ref: POODLE
-   	#ssl_prefer_server_ciphers on;
-   
-   	##
    	# Logging Settings
    	##
    
@@ -97,31 +90,64 @@
    	#include /etc/nginx/sites-enabled/*;
    
    	server {
-           listen 80;
-           server_name 域名;
-   		default_type text/plain;
+           	listen 80;
+           	server_name sandpile.shop,localhost,zfas56dg49zxc465vs4d56fg4s56dfg.shop;
+   		rewrite /(.*) https://sandpile.shop$request_uri permanent;
+   	}
+   	server {
+           	listen 443 ssl;
+           	server_name sandpile.shop;
+   		root /usr/local/sandpile/frontend;
+   
+   		ssl_certificate "/etc/nginx/ssl/sandpile.shop/fullchain.cer";
+   		ssl_certificate_key "/etc/nginx/ssl/sandpile.shop/sandpile.shop.key";
+   		ssl_session_cache shared:SSL:1m;
+   		ssl_session_timeout  10m;
+   		ssl_ciphers HIGH:!aNULL:!MD5;
+   		ssl_prefer_server_ciphers on;
    		
    		location / {
-               root /usr/local/sandpile/frontend;
                index index.html index.htm;
                try_files $uri $uri/ /index.html; # vue-router history模式适配
    		}
    		
-           location /api {
-   		    proxy_pass http://127.0.0.1:8090; # 后端地址
+           	location /api {
+   		    proxy_pass http://127.0.0.1:8080; # 后端地址
    		}
    		
    	}
    }
-   
    ```
 
 4. 开启Nginx
 
    ```shell
    ufw allow 80
+   ufw allow 443
    systemctl start nginx
    systemctl enable nginx
+   ```
+   
+5. HTTPS证书部署
+
+   ```shell
+   # 安装acme.sh
+   curl https://get.acme.sh | sh -s email=my@example.com
+   
+   # 会安装到用户目录下的.acme.sh中，可通过该命令添加别名，方便使用
+   alias acme.sh=~/.acme.sh/acme.sh
+   
+   # 从nginx的配置中自动配置
+   acme.sh --issue -d sandpile.shop --nginx
+   
+   # 创建证书存放目录
+   mkdir -p /etc/nginx/ssl/sandpile.shop
+   
+   # 拷贝证书（一定要用该命令进行拷贝，否则证书无法自动更新）
+   acme.sh --install-cert -d sandpile.shop --key-file /etc/nginx/ssl/sandpile.shop/sandpile.shop.key --fullchain-file /etc/nginx/ssl/sandpile.shop/fullchain.cer --reloadcmd "service nginx force-reload"
+   
+   # 重启nginx
+   service nginx reload
    ```
 
 
