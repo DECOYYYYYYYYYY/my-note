@@ -2625,7 +2625,7 @@ xhr.send() // 发送
 // 处理服务器返回的结果
 xhr.onreadystatechange = function (){
     // 判断服务端是否返回了所有的结果
-	if(xhr.readyState === 4){
+	if(xhr.readyState === XMLHttpRequest.DONE){
         // 判断响应状态码是否为成功
 		if(xhr.status >= 200 && xhr.status < 300){  
             ...
