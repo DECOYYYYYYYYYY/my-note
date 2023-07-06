@@ -373,7 +373,7 @@ static [Symbol.species]: () => 构造函数
     - NaN不与任何值相等（NaN不等于NaN）
   - 若两个操作数都是对象，比较地址值
   
-
+  
   
 
 #### 其他操作符
@@ -2177,6 +2177,9 @@ export {bar};
   - 返回匹配元素的 HTML 集合(HTMLCollection）
 - `element.getElementsByTagName("标签名") / element.getElementsByClassName("类名")` 
   - 在元素的子树中搜索(不含元素自身)，返回匹配元素的 HTML 集合(HTMLCollection）
+- `window.getComputedStyle(Element, '伪元素选择器')`
+  - 获取伪元素的样式信息，该返回对象可以调用 `getProperty('prop')`、和`setProperty('prop', 'value')` 进行属性读写
+
 
 
 
@@ -2226,7 +2229,9 @@ export {bar};
 
 实例属性（样式）：
 
-- `style`：可读写属性，一个对象，键名为小驼峰的 CSS 属性名，键值为属性值。用于设置样式
+- `style`：只读属性，一个对象，键名为小驼峰的 CSS 属性名，键值为属性值。
+  - `style.cssText`：可读写属性，字符串，相当于HTML中的style属性
+
 - `window.getComputedStyle(元素[, "伪元素字符串"])`：获取元素的实时样式
   - 返回一个对象，以键值对的方式存储 CSS 属性（键名为小驼峰），当元素样式变更时，该对象会自动更新
   - 伪元素字符串：`::after`、`::before` 等
@@ -2543,6 +2548,120 @@ cookie：用于浏览器和服务器端进行通信
 - 生命周期：会话cookie、人为设置cookie
 
 
+
+## 文件
+
+### Blob
+
+> Blob，即binary large object，二进制大对象，用于表示原始的类似文件的数据
+
+构造函数：`new Blob(array, options)`
+
+- array：数组内可有 ArrayBuffer、ArrayBufferView、Blob、DOMString 等类型，会被放进Blob
+- options：选项对象，可选属性：
+  - `type=""`：表示内容的MIME类型
+
+
+
+实例属性：
+
+- `size: num`：数据大小（字节）
+- `type: str`：认为该对象包含的MIME类型，若类型未知，则为空字符串
+
+
+
+实例方法：
+
+- `slice(start?: num, end?: num, contentType?: str)`：切片，返回新的blob实例
+  - start、end参数同字符串的slice方法
+  - contentType：新blob的MIME类型，若不指定，从原blob的type属性继承值
+
+
+
+常见使用：
+
+- 转换为URL：url可作为 iframe、img、video 等元素的src属性，也可以作为 a 元素的 href 属性
+
+  ```js
+  // 在iframe中加载
+  const blob = new Blob(["Hello World"], {type: "text/plain"});
+  const url = URL.createObjectURL(blob);
+  const iframe = document.getElementsByTagName("iframe")[0];
+  iframe.src = url;
+  
+  // 下载文件
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '文件名';
+  a.click();
+  ```
+
+
+
+### File
+
+> 一种特殊的Blob对象
+
+
+
+获取方式：
+
+1. `<input>` 元素上选择文件后返回的 FileList 对象
+2. 文件拖放操作生成的 `DataTransfer` 对象
+
+
+
+实例方法：
+
+- `lastModified: num`： 文件最后修改日期（时间戳形式，毫秒数）
+- `name: str`：文件名
+- `size`：文件大小（字节）
+- `type`：文件的媒体类型（MIME）
+- `webkitRelativePath`：文件的路径或 URL（非标准）
+
+
+
+### FileReader
+
+> 用于读取Blob
+
+
+
+创建：`const reader = new FileReader();`
+
+
+
+实例属性：
+
+- `error: Error`：读取文件时发生的错误
+- `result`：文件内容，仅在读取完成后才有值，值的类型取决于调用的读取方法
+- `readyState: 0 | 1 | 2`：枚举值，表示状态
+  - 可取值有：0（未加载）、1（正在加载）、2（已全部加载）
+
+
+
+实例方法：
+
+- `readAsArrayBuffer(blob)`：读取blob为 `ArrayBuffer` 数据对象
+- `readAsBinaryString(blob)`：读取blob为二进制字符串
+- `readAsDataURL(blob)`：读取blob为 Base64 字符串
+- `readAsText(blob)`：读取blob为字符串
+
+
+
+实例事件：
+
+- `abort`：读取操作被中断时触发
+- `error`：读取操作发生错误时触发
+- `load`：读取操作完成时触发
+- `progress`：在读取 Blob 时触发
+
+
+
+File、Blob、FileReader、ArrayBuffer、Base64
+
+https://zhuanlan.zhihu.com/p/568915443
 
 ## 修饰器
 
