@@ -631,6 +631,20 @@ HTML中使用：`<组件名></组件名>`（DOM模板中） 或  `<组件名/>`
   - `v-slot`可以使用动态指令参数：`v-slot:[表达式]`
   - 缩写：`v-slot:xx`缩写为`#xx`
 
+插槽透传：
+
+```vue
+<template>
+    <el-dialog>
+        <template v-for="(item, key, index) in $slots" :key="index" v-slot:[key]>
+            <slot :name="key"></slot>
+        </template>
+    </el-dialog>
+</template>
+```
+
+
+
 ### 动态组件&异步组件
 
 **动态组件**

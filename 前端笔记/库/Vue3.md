@@ -104,7 +104,7 @@ let A2 = computed(() => A0.value + A1.value)
 
 内置指令参考Vue2：`v-text`、`v-html`、`v-show`、`v-if`、`v-else`、`v-else-if`、`v-for`、`v-on`、`v-bind`、`v-model`、`v-slot`、`v-pre`、`v-once`、`v-cloak`
 
-模板内可用的特殊变量：`$attrs`等参考vue2
+模板内可用的特殊变量：`$attrs`、`$slots`等（参考vue2）
 
 
 
