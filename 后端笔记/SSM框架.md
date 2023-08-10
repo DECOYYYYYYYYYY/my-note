@@ -800,7 +800,11 @@ public int methodName(){
 }
 ```
 
-通知注解的value值：`"切入点方法名()"` 或 `"当前类名.切入点方法名()"` 不推荐使用后者
+通知注解的value值：
+
+1. `"切入点方法名()"`
+2. `"当前类名.切入点方法名()"` 不推荐使用
+3. `"@annotation(注解类全名)"`：以此形式，无需切入点，会将被注解修饰的所有方法作为切入点
 
 通知类型：
 
@@ -822,17 +826,6 @@ public int methodName(){
 
   - pjp.proceed方法也可传入Object[]作为参数，表示覆盖切入点方法的参数
 
-  - 获取方法信息：
-
-    ```java
-    // 获取执行签名信息
-    Signature signature = pjp.getSignature();
-    // 通过签名获取执行操作名称(接口名)
-    String className = signature.getDeclaringTypeName();
-    // 通过签名获取执行操作名称(方法名)
-    String methodName = signature.getName();
-    ```
-
 - 返回后通知：`@AfterReturning`
 
 - 抛出异常后通知：`@AfterThrowing`
@@ -841,24 +834,35 @@ public int methodName(){
 
 通知方法获取数据：
 
-- 获取切入点方法参数：
+- 获取切入点方法信息：
 
-  - 环绕通知：接收参数 `ProceedingJoinPoint pjp`
+  1. 环绕通知接收参数 `ProceedingJoinPoint pjp`，其他通知接收参数 `JoinPoint jp`
 
-    ```java
-    Object[] args = pjp.getArgs();
-    ```
+  2. 两个参数均具有同样的方法，这里以JoinPoint举例：
 
-  - 其他通知：通知方法接收参数 `JoinPoint jp`
+     ```java
+     // 获取请求参数
+     Object[] args = jp.getArgs();
+     // 获取执行签名信息
+     Signature signature = jp.getSignature();
+     
+     // 获取接口名
+     String className = signature.getDeclaringTypeName();
+     // 获取方法名
+     String methodName = signature.getName();
+     
+     // 获取方法签名
+     MethodSignature methodSignature = (MethodSignature) signature;
+     // 获取Method对象
+     Method method = methodSignature.getMethod();
+     ```
 
-    ```java
-    Object[] args = jp.getArgs();
-    ```
+     
 
 - 获取切入点方法返回值：
 
   - 返回后通知：为注解传入参数 `returning="ret"`，再在通知方法的参数中接收`Object ret`
-    - 若有接收 JoinPoint 参数，需将 JoinPoint 放在参数的第一位
+    - 若有接收 JoinPoint 参数，需将 JoinPoint 放在通知方法参数的第一位
   - 环绕通知：接收pjp.proceed方法的返回值
 
 - 获取切入点方法异常信息：

@@ -741,9 +741,31 @@ http
 
 
 
-内置过滤器：
+内置过滤器：过滤器顺序从上到下
 
-- UsernamePasswordAuthenticationFilter：用户名和密码过滤器
+| 别名                         | 类名称                                                | Namespace Element or Attribute                               |
+| :--------------------------- | :---------------------------------------------------- | :----------------------------------------------------------- |
+| CHANNEL_FILTER               | ChannelProcessingFilter                               | http/intercept-url[@requires](https://github.com/requires)-channel |
+| SECURITY_CONTEXT_FILTER      | SecurityContextPersistenceFilter                      | http                                                         |
+| CONCURRENT_SESSION_FILTER    | ConcurrentSessionFilter                               | session-management/concurrency-control                       |
+| HEADERS_FILTER               | HeaderWriterFilter                                    | http/headers                                                 |
+| CSRF_FILTER                  | CsrfFilter                                            | http/csrf                                                    |
+| LOGOUT_FILTER                | LogoutFilter                                          | http/logout                                                  |
+| X509_FILTER                  | X509AuthenticationFilter                              | http/x509                                                    |
+| PRE_AUTH_FILTER              | AbstractPreAuthenticatedProcessingFilter( Subclasses) | N/A                                                          |
+| CAS_FILTER                   | CasAuthenticationFilter                               | N/A                                                          |
+| FORM_LOGIN_FILTER            | UsernamePasswordAuthenticationFilter                  | http/form-login                                              |
+| BASIC_AUTH_FILTER            | BasicAuthenticationFilter                             | http/http-basic                                              |
+| SERVLET_API_SUPPORT_FILTER   | SecurityContextHolderAwareRequestFilter               | http/@servlet-api-provision                                  |
+| JAAS_API_SUPPORT_FILTER      | JaasApiIntegrationFilter                              | http/@jaas-api-provision                                     |
+| REMEMBER_ME_FILTER           | RememberMeAuthenticationFilter                        | http/remember-me                                             |
+| ANONYMOUS_FILTER             | AnonymousAuthenticationFilter                         | http/anonymous                                               |
+| SESSION_MANAGEMENT_FILTER    | SessionManagementFilter                               | session-management                                           |
+| EXCEPTION_TRANSLATION_FILTER | ExceptionTranslationFilter                            | http                                                         |
+| FILTER_SECURITY_INTERCEPTOR  | FilterSecurityInterceptor                             | http                                                         |
+| SWITCH_USER_FILTER           | SwitchUserFilter                                      | N/A                                                          |
+
+
 
 
 
@@ -989,6 +1011,8 @@ public UserModel findUser(Principal principal)  {
     return userModel;
 }
 ```
+
+**注意：此处也可注入Authentication类，它是Principle的子类，属性更为详细**
 
 #### 注入UserDetails获取数据中的UserDetails特有信息
 
