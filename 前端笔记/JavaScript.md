@@ -2149,6 +2149,7 @@ export {bar};
 
 - `nodeType`：1 为元素节点，2 为属性节点，3 为文本节点
 - `childNodes`：所有非属性子节点的集合
+- `parentNode`：父节点
 - `firstChild / lastChild`：第一个/最后一个 非属性子节点
 - `nextSibling / previousSibling`：下一个/上一个 非属性兄弟节点
 - `nextElementSibling / previousElementSibling`：下一个/上一个 兄弟元素节点（非标准）
@@ -2199,6 +2200,7 @@ export {bar};
 - `dataset`：一个对象，键名为自定义特性名去掉`"data-"`，再将剩余部分改为小驼峰，键值为特性值
   - 元素的自定义特性：`<div data-age="18"></div>` 自定义特性的格式为`data-xxx-xxx-...`
 - `children`：所有子元素集合（动态更新）
+- `parentElement`：父元素
 - `firstElementChild / lastElementChild`：第一个/最后一个 子元素
 
 
@@ -2506,6 +2508,13 @@ window.navigator对象：
 
 - 属性：
   - `userAgent`：只读，浏览器用于 HTTP 请求的用户代理头的值的字符串
+- 方法：
+  - `sendBeacon(url: str, data?: FormData|DOMString|JSONString等)`：使用post发送请求，将data作为请求体
+    - 优点：使用该方法，请求不会因页面的关闭而关闭。
+    - 缺点：
+      - 方法只返回布尔值，表示是否发送成功，无法绑定回调函数来监听请求的成功与否
+      - 无法设置请求头，无法使用除post外的请求方法
+
 
 
 
@@ -2786,45 +2795,90 @@ xhr.onreadystatechange = function (){
 `window.fetch('url', 配置对象)` 发送请求，返回Promise对象
 
 - 配置对象：
-  - `method`：`'GET'`、`'POST'`
+  - `method`：`'GET'`、`'POST'` 等
   - `headers`：请求头信息，为对象
-  - `body`：请求体信息，可为对象可为字符串（get方法的参数）
+  - `body`：请求体信息，可取值有：
+    - FormData对象
+    - URL参数形式字符串（get请求）
+    - JSON字符串（需设置请求头 `Content-Type` 为 `application/json; charset=utf-8`）
+  - `keepalive`：布尔值，若为真，请求将不会在页面关闭后随之关闭
 
 - 特点：
   - 收到一个代表错误的HTTP状态码（2xx）时，返回的Promise状态仍为fulfilled，但返回值的ok属性为false，仅网络故障或请求被阻止时，才会标记为rejected
-  - 可以接受跨域cookies
-  - 不发送跨域cookies
-  - 响应body是一个 ReadableStream 对象，一种可读取二进制结构，可以调用response的text()、json()、blob()等方法，会返回一个promise对象，其值为转换后的响应body
+  - 可以接受跨域cookies，不发送跨域cookies
 
-- 模拟表单方式提交：
+- 返回值：一个promise对象
 
-  ```js
-  fetch("/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    },
-    body: `username=${account}&password=${pwd}` // 查询字符串格式
-  })
-  ```
+  - 当状态为成功时，其值为一个 ReadableStream 对象，一种可读取二进制结构，称之为response对象
 
-  - 可以直接将formData实例作为请求体，这样就无需进行字符串转换
+    - response对象，其实例方法有：`text()`、`json()`、`blob()` 等。从response中读取数据并转换为指定格式，返回一个新的promise对象，其值为转换后的数据。
 
-- axios模拟表单提交：
+  - 当状态为失败时，其值为一个 error 对象
 
-  ```ts
-  axios({
-      url: `${pathPrefix}/getMenu`,
-      method: 'post',
-      headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-      },
-      transformRequest: (data)=>Object.entries(data).map(i=>i.join('=').join('&'),
-      data: {a: 'a', b: 1},
-  })
-  ```
+  - 常见用法：
 
-  
+    ```js
+    fetch(...).then(res => res.json()).then(json => {
+    	// ...
+    })
+    ```
+
+    
+
+
+
+
+
+#### 常见场景示例
+
+模拟表单提交：
+
+1. 使用fetch：
+
+   ```js
+   fetch("/login", {
+     method: "POST",
+     headers: {
+       "Content-Type": "application/x-www-form-urlencoded"
+     },
+     body: `username=${account}&password=${pwd}` // 查询字符串格式
+   })
+   ```
+
+     - 也可以直接将formData实例作为请求体，这样就无需进行字符串转换
+
+
+2. 使用axios：
+
+   ```js
+   axios({
+       url: `${pathPrefix}/getMenu`,
+       method: 'post',
+       headers: {
+           'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+       },
+       transformRequest: (data)=>Object.entries(data).map(i=>i.join('=').join('&'),
+       data: {a: 'a', b: 1},
+   })
+   ```
+
+
+
+在页面关闭时发送请求：
+
+> `beforeunload` 与 `unload` 事件不会被可靠地触发（特别是在移动设备上），因此推荐使用 `visibilitychange` 事件，在页面隐藏时发送请求。
+
+1. 使用sendBeacon：使用方法见[navigator](#Window)
+
+   ```js
+   document.addEventListener("visibilitychange", function logData() {
+     if (document.visibilityState === "hidden") {
+       navigator.sendBeacon("/log", analyticsData);
+     }
+   });
+   ```
+
+2. 使用fetch（推荐）：仅需在fetch的配置对象中设置keepalive为true即可
 
 
 
@@ -2927,11 +2981,24 @@ function FilesUpload() {
 
 
 
+直接通过JS弹出文件选择框并选择：
+
+> 必须由用户的dom操作引发下述代码的执行，才能有效弹出。这是浏览器的安全策略。
+
+```js
+const input = document.createElement('input');
+input.type = 'file';
+input.click();
+```
+
+
+
 #### 下载
 
 1. 适用于浏览器无法识别文件，如果是html、jpg、pdf等会直接解析展示，而不会下载
 ```javascript
 window.top.location.href = url 
+window.location.href = url
 window.open(url)
 ```
 

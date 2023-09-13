@@ -58,6 +58,18 @@ Node在处理请求时是单线程的，但是在后台拥有一个I/O线程池�
 
     - 淘宝源：`http://registry.npm.taobao.org`
 
+
+
+### 安装超时处理
+
+NPM暂时不支持本机使用IPV6地址，若报错ETIMEDOUT+IPV6，需要设置本机IP为IPV4：
+
+1. 首先按Win+R打开运行，输入regedit，按回车打开注册表编辑器。
+2. 找到 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters ，然后查看右边有没有一个叫DisabledComponents的值，如果没有的话就新建一个DWORD值，填这个名字。
+3. 双击DisabledComponents编辑它的值，把值改成 0x20（就是十进制的32）。
+
+参考：https://juejin.cn/post/7248926985576169532
+
 ## Buffer
 
 Buffer：缓冲区，Node.js内置的类。

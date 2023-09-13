@@ -237,7 +237,7 @@
     # 方法二：在数据库命令行下的导入方法
     mysql -u root -p
     mysql> use sandpile;
-    mysql> set names utf8;  #设定数据库的编码（针对空数据库）
+    mysql> set names 'utf8';  #设定数据库的编码（针对空数据库）
     mysql> source /usr/local/sandpile/backend/db/sand.sql;  #导入的命令，数据库备份文档的绝对路径
     mysql> quit;
     ```

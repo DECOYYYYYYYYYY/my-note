@@ -443,6 +443,7 @@ HTML元素的主要部分有：
     - `capture="可选值"`：不选择文件，改为通过相机或媒体选择器获取（accept需要是图片或视频）
       - 可选值有：user / environment（使用前置/后置摄像头）
     - `multiple`：是否允许多选文件
+    - `directory` / `webkitdirectory` ：非标准属性。是否切换为文件夹选择模式
   - hidden：不显示的控件，但值仍会提交到服务器
 
 

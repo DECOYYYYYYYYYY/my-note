@@ -332,6 +332,8 @@ setup函数接收参数`(props, context)`
   
 - `withDefaults(props, {属性:默认值})`  用于定义props默认值，返回props响应式对象
 
+  - 同vue2，默认值若为引用类型，需传入一个getter函数作为默认值
+
 - `defineExpose(对象)` 暴露属性至组件实例
 
 - `useSlots()`/`userAttrs()` 返回值与`context.slots`/`context.attrs` 等价
@@ -782,6 +784,37 @@ const state = reactive({ count: 0 })
     color: v-bind(color); // 直接使用变量
     color: v-bind('theme.color'); // js表达式
     ```
+
+
+
+#### 组件泛型
+
+可以使用 `<script>` 标签上的 `generic` 属性声明泛型类型参数：
+
+```vue
+<script setup lang="ts" generic="T">
+defineProps<{
+  items: T[]
+  selected: T
+}>()
+</script>
+```
+
+泛型也可以使用extends约束为指定类型
+
+```vue
+<script
+  setup
+  lang="ts"
+  generic="T extends string | number, U extends Item"
+>
+import type { Item } from './types'
+defineProps<{
+  id: T
+  list: U[]
+}>()
+</script>
+```
 
 
 

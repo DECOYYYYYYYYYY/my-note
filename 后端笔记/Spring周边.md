@@ -819,6 +819,18 @@ http.csrf().disable(); // 关闭CSRF跨域保护
 
 
 
+#### 匿名用户
+
+configure(HttpSecurity http)方法中：
+
+```java
+http.anonymous()
+    .principal("anonymousUser") // 设置匿名用户名
+    .authorities("ROLE_ANONYMOUS"); // 设置匿名用户的角色
+```
+
+
+
 ### token认证
 
 1. 引入JWT依赖

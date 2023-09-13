@@ -248,6 +248,10 @@ long count(); // 返回流中元素个数
 void forEach(函数式接口); // 逐一处理流中的元素
 
 Stream<T> filter(函数式接口); // 过滤元素，保留函数返回值为true的元素
+// filter可以搭配findAny和isPresent方法判断流中是否存在某个元素（不推荐，建议使用anyMatch）
+boolean result = list.stream().filter(...).findAny().isPresent();
+
+boolean anyMatch(函数式接口); // 判断是否存在某个元素，只要有一个函数返回true，anyMatch就返回true
 
 Stream<T> limit(long maxSize); // 当流的长度大于参数时，截取流至maxSize长度
 

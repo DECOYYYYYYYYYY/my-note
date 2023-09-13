@@ -2628,7 +2628,7 @@ public interface UserMapper extends BaseMapper<UserPO> {}
 使用：
 
 ```java
-QueryWrapper qw = new QueryWrapper();
+QueryWrapper<UserPO> qw = new QueryWrapper<>();
 qw.lt("age",18);
 List<UserPO> userList = UserMapper.selectList(qw);
 ```
@@ -2646,16 +2646,16 @@ List<UserPO> userList = UserMapper.selectList(qw);
 QueryWrapper：用于构建查询条件
 
 ```java
-QueryWrapper qw = new QueryWrapper();
+QueryWrapper<UserPO> qw = new QueryWrapper<>();
 
-// 简单使用，可能出现字段名写错的情况
+// 简单使用，可能出现字段名写错的情况，但字符串中可包含sql函数
 qw.lt("age",18); // 添加条件: age小于18
 
 // 配合lambda表达式使用
 qw.lambda().gt(User::getAge, 10); // 添加条件:age大于10
 
 // 使用LambdaQueryWrapper,简化调用
-LambdaQueryWrapper<User> lqw = new LambdaQueryWrapper<User>();
+LambdaQueryWrapper<UserPO> lqw = new LambdaQueryWrapper<>();
 lqw.gt(User::getAge, 10);
 ```
 
@@ -2671,7 +2671,7 @@ lqw.gt(User::getAge, 10);
 #### 查询条件方法
 
 ```java
-// 条件方法中的字段参数为函数式接口(一般用lambda表达式)
+// 条件方法中的字段参数为 返回字段值的函数式接口(一般用lambda表达式)
 // 条件方法可在最前面添加一个布尔参数, 若为true则添加该条件, 为false则不添加
 // 所有条件方法均返回LambdaQueryWrapper, 支持链式调用
 

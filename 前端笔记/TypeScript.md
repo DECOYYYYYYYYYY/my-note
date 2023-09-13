@@ -900,7 +900,10 @@ declare function getAge(): number | string;
 declare class Person { };
 declare enum Seasons {...};
 declare namespace $ {...};
+declare interface XX {...};
 ```
+
+- 为已有类型进行declare声明时，会将声明的类型扩展给原有类型
 
 类型声明文件：类型声明通常单独放在`xxx.d.ts`中
 
