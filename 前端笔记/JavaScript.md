@@ -271,7 +271,7 @@ static [Symbol.species]: () => 构造函数
 特点：
 
 - 支持 `+  -  *  /  **  %`  以及除了 无符号右移`>>>`外 的位运算符，不能使用一元加`+`
-  - bigint只能于bigint运算，运算返回值为bigint。使用除法时，抹去结果的小数部分
+  - bigint只能与bigint运算，运算返回值为bigint。使用除法时，抹去结果的小数部分
 - 支持使用关系/相等操作符与number进行比较（与number值相等时，==返回true，===返回false）
 
 
@@ -512,7 +512,7 @@ static [Symbol.species]: () => 构造函数
 
 - var：声明变量。变量被添加到最接近的函数/全局作用域，存在变量提升
 - let：声明变量。
-  - 不能声明已被 let、const 声明的当前作用域的同名变量
+  - 不能声明已被 var、let、const 声明的当前作用域的同名变量
   - 变量被添加到最接近的函数/块级作用域，不存在变量提升
   - let、const、class 在全局作用域中声明的变量不会成为 Global 对象的属性
 - const：声明常量。
@@ -826,7 +826,7 @@ getMilliseconds() / setMilliseconds(int) // 毫秒
 - `exec('源字符串')`：返回包含匹配信息的数组；匹配失败返回null
   - 数组的第一个元素为匹配整个模式的子串，其余元素为表达式中捕获组匹配的子串
   - 数组还具有属性：
-    - `groups:{ [捕获组名:str]: str }`：具名捕获组匹配的子串
+    - `groups: { [捕获组名:str]: str }`：具名捕获组匹配的子串
     - `input: str`：源字符串
     - `index: int`：匹配整个模式的子串的起始索引
 - `test('源字符串'): bool`：检查字符串是否与模式匹配
@@ -1035,7 +1035,7 @@ getMilliseconds() / setMilliseconds(int) // 毫秒
 静态属性：
 
 - `EPSILON`：JS表示的最小精度
-- `MAX_SAFE_INTEGER / MIN_SAFE_INTEGER`：最大/最小安全整数，即`-2**53+1 / 2**53-1`
+- `MAX_SAFE_INTEGER / MIN_SAFE_INTEGER`：最大/最小安全整数，即`2**53-1 / -2**53+1`
 - `MAX_VALUE / MIN_VALUE`：最大/最小正数
 - `NEGATIVE_INFINITY / POSITIVE_INFINITY`：负无穷大值/正无穷大值，溢出时返回该数
 
@@ -1515,7 +1515,7 @@ const User = (()=>{
 
 #### 实例方法
 
-> 对象的实例方法应当通过`Object.property.方法名.call(...)`的形式调用，防止对象有实例方法同名属性时出现错误。
+> 对象的实例方法应当通过`Object.prototype.方法名.call(...)`的形式调用，防止对象有实例方法同名属性时出现错误。
 
 - `hasOwnProperty("属性名")` 返回布尔，判断对象自身是否有指定的属性
 - `isPrototypeOf(对象)` 返回布尔，判断调用对象是否在指定对象的原型链上
@@ -2224,7 +2224,7 @@ export {bar};
   - `'beforeend'`：实例元素标签内部的末尾
   - `'afterend'`：实例元素后
 - `insertAdjacentElement(position, 元素节点)`：无返回，将元素添加到指定位置
-- `insertAdjacentText("position", 文本节点)`：无返回，将文本节点添加到指定位置
+- `insertAdjacentText(position, 文本节点)`：无返回，将文本节点添加到指定位置
 - `remove()`：无返回，删除实例元素
 
 
@@ -2267,7 +2267,7 @@ export {bar};
 
 - `scrollHeight / scrollWidth` 整数，包含内容区+内边距的**实际** 高度/宽度
   - 实际宽高：不论内容是否超出容器，都按实际内容区+内边距计算宽高
-- `scrollTop / scrollLeft` 数值，被卷去 上侧/左侧 的距离(元素溢出 上界/左界 的距离)
+- `scrollTop / scrollLeft` 数值，该容器的内容被卷去 上侧/左侧 的距离(元素溢出 上界/左界 的距离)
 
 
 
@@ -2478,10 +2478,10 @@ window 的布局属性：
 实例方法（其他）：
 
 - `scroll(x, y)`：滚动窗口至文档指定位置
-- `setTimeout（回调函数（）[，延迟的毫秒数=0]）:num`：返回定时器id，设定完成后到指定时间调用函数
-- `clearTimeout（timeoutID）`：清除指定定时器
-- `setInterval（回调函数[，间隔的毫秒数=0]）:num`：返回循环定时器id，间隔指定时间执行一次
-- `clearInterval（IntervalID）`：清除指定循环定时器
+- `setTimeout(回调函数[，延迟的毫秒数=0]):num`：返回定时器id，设定完成后到指定时间调用函数
+- `clearTimeout(timeoutID）`：清除指定定时器
+- `setInterval(回调函数[，间隔的毫秒数=0]):num`：返回循环定时器id，间隔指定时间执行一次
+- `clearInterval(IntervalID)`：清除指定循环定时器
 
 
 
@@ -2847,7 +2847,6 @@ xhr.onreadystatechange = function (){
 
      - 也可以直接将formData实例作为请求体，这样就无需进行字符串转换
 
-
 2. 使用axios：
 
    ```js
@@ -2857,7 +2856,7 @@ xhr.onreadystatechange = function (){
        headers: {
            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
        },
-       transformRequest: (data)=>Object.entries(data).map(i=>i.join('=').join('&'),
+       transformRequest: (data)=>Object.entries(data).map(i=>i.join('=')).join('&'),
        data: {a: 'a', b: 1},
    })
    ```

@@ -73,7 +73,7 @@ const element = React.createElement(
 
 ### Protals
 
-`ReactDOM.createPortal(任何可渲染的React元素，DOM元素)` 作为 render 方法的返回值，将指定 react 元素渲染为为指定 DOM 元素的子元素
+`ReactDOM.createPortal(任何可渲染的React元素，DOM元素)` 作为 render 方法的返回值，将指定 react 元素渲染为指定 DOM 元素的子元素
 
 protal 的事件冒泡会沿 React 树传递，而非 DOM 树
 
@@ -99,7 +99,7 @@ class Welcome extends React.Component {
 组件渲染：
 
 - 若 render 函数返回 null，则不会渲染组件，此时不影响生命周期
-- state 的变化会重新调用该组件及其后代组件的 render 函数，**props 的变化不会导致重新渲染**
+- state 的变化会重新调用该组件及其后代组件的 render 函数，**props 的变化也会导致重新渲染**
 
 
 
@@ -195,7 +195,7 @@ constructor(props) {
 
 
 
-`React.forwardRef((props, ref) => React元素)` 创建并返回一个 React 组件，回调函数返回值将作为其子元素
+`React.forwardRef((props, ref) => React元素)` 创建并返回一个 React 组件，即返回值
 
 - Ref 转发：参数 ref 为其接受的 ref 属性，可将其转发到其组件树下的另一个元素中，此时 createRef创建的ref对象 的 current 属性指向转发后的元素
 - 参数 props 为其接受的 props 属性
@@ -206,13 +206,71 @@ constructor(props) {
 
 适用于 class 声明的组件，生命周期函数会在特定的时候被调用
 
+- `constructor()`
+
+- `getDerivedStateFromProps(nextProps, prevState)` 返回一个对象来更新state，若返回null则不更新
+
 - `componentDidMount()` 组件已经被渲染到 DOM 中之后（挂载后）
-- `componentDidUpdate()` 组件更新后
-- `componentWillUnmount()` 组件从 DOM 中被移除之后
-- `static getDerivedStateFromError(error)` 捕获错误后调用，内部应更新 static，使得能够渲染降级 UI
-- `componentDidCatch()` 捕获错误后调用，用于打印错误信息
+
 - `shouldComponentUpdate(nextProps, nextState)` 在重新渲染前调用，返回 false 可以阻止渲染
+
   - React.PureComponent 相比 React.Component 基于 prop 和 state 的浅层对比实现了 shouldComponentUpdate()
+
+- `getSnapShotBeforeUpdate(prevProps, prevState)`：用于在组件更新前捕获一些信息，返回值会被传递到componentDidUpdate的第三个参数中
+
+- `componentDidUpdate(prevProps, prevState, snapshot)` 组件更新后
+
+- `componentWillUnmount()` 组件从 DOM 中被移除之后
+
+- `static getDerivedStateFromError(error)` 捕获错误后调用，返回一个对象来更新state，使得能够渲染降级 UI
+
+- `componentDidCatch(error, info)` 捕获错误后调用，用于打印错误信息
+
+  
+
+> 组件的生命周期可以分为**挂载、更新、卸载**阶段
+>
+> **挂载**
+>
+> **constructor** 可以进行state和props的初始化
+>
+> static getDerivedStateFromProps
+>
+> render
+>
+> **componentDidMount** 第一次渲染后调用，可以访问DOM，进行异步请求和定时器、消息订阅
+>
+> 
+>
+> **更新**
+>
+> 当组件的props或state变化会触发更新
+>
+> static getDerivedStateFromProps
+>
+> **shouldComponentUpdate** 返回一个布尔值，默认返回true，可以通过这个生命周期钩子进行性能优化，确认不需要更新组件时调用
+>
+> render
+>
+> getSnapShotBeforeUpdate
+>
+> componentDidUpdate 在组件完成更新后调用
+>
+> 
+>
+> **卸载**
+>
+> componentWillUnmount 组件从DOM中被移除的时候调用
+>
+> 
+>
+> **错误捕获**
+>
+> static getDerivedStateFromError 在errorBoundary中使用
+>
+> componentDidCatch
+>
+> **render**是class组件中唯一必须实现的方法
 
 
 
@@ -468,7 +526,7 @@ Diff 算法：在重新渲染时，对比两棵树来高效更新 DOM
 
 ### Render Props
 
-prop 的值为一个函数，返回 React 元素，则称之为 render prop，用于告知组件需要渲染什么内容。
+prop 的值为一个函数，返回 React 元素，则称之为 render prop，在子元素的render方法中调用该prop值作为返回值。
 
 - 可以直接使用 children prop 来实现，将函数直接放在元素内部（推荐）
 - 使用 Render Props 会抵消 React.PureComponent 带来的优势

@@ -841,6 +841,9 @@ type Readonly<T> = {
 type Partial<T> = {
     [P in keyof T]?: T[P];
 }
+type Require<T> = {
+    [P in keyof <T>]-?: T[P]
+}
 type PersonPartial = Partial<Person>; // 转换所有属性为可选
 type ReadonlyPerson = Readonly<Person>; // 转换所有属性为只读
 ```
@@ -851,20 +854,46 @@ type ReadonlyPerson = Readonly<Person>; // 转换所有属性为只读
 type Pick<T, K extends keyof T> = {
     [P in K]: T[P];
 }
-type Record<K extends string, T> = {
+type Record<K extends string | number | symbol, T> = {
     [P in K]: T;
 }
 ```
 
 预定义的条件类型：（已被包含进了ts标准库中）
 
-- `Readonly<T>`、 `Partial<T>`、`Pick`、`Record`
+- `Readonly<T>`：将对象T的所有属性转为只读
 
-- `Exclude<T, U>` -- 从`T`中剔除可以赋值给`U`的类型。
+- `Partial<T>`：将对象T的所有属性转为可选
 
-- `Extract<T, U>` -- 提取`T`中可以赋值给`U`的类型。
+- `Required<T>`：将对象T的所有属性转为必选
 
-- `NonNullable<T>` -- 从`T`中剔除`null`和`undefined`。
+- `Pick<T, K extends keyof T>`：从对象T中将需要的属性K采集，形成新类型
+
+- `Record<K extends string | number | symbol, T>`：定义一个对象，键类型为K，值类型为T
+
+- `Exclude<T, U>`：从`T`中剔除可以赋值给`U`的类型
+
+  ```ts
+  type A = number | string | boolean
+  type B = number | boolean
+  
+  type Foo = Exclude<A, B>
+  // 相当于
+  type Foo = string
+  ```
+
+- `Extract<T, U>`：提取`T`中可以赋值给`U`的类型
+
+  ```
+  type A = number | string | boolean
+  type B = number | boolean
+  
+  type Foo = Extract<A, B>
+  // 相当于
+  type Foo = number | boolean
+  ```
+
+- `NonNullable<T>`：从类型`T`中剔除`null`和`undefined`。
 
 - `Omit<T, K extends keyof any>`：从接口T中剔除K所描述的属性
 
@@ -878,9 +907,21 @@ type Record<K extends string, T> = {
   type WithoutAgeAndAddress = Omit<Person, 'age' | 'address'>; // 移除多个属性
   ```
 
-- `ReturnType<T>` -- 获取函数返回值类型。
+- `Parameters<T>`：以元组的形式，获取函数类型`T`的参数
 
-- `InstanceType<T>` -- 获取构造函数类型的实例类型。
+  ```ts
+  type t = Parameters<(name: string) => any>; 
+  // type t = [string]
+  
+  type t2 = Parameters<((name: string) => any)  | ((age: number) => any)>; 
+  // type t2 = [string] | [number]
+  ```
+
+- `ConstructorParameters<T>`：以元组的形式，获取构造函数类型`T`的参数
+
+- `ReturnType<T>`：获取函数类型`T`返回值类型。
+
+- `InstanceType<T>`：获取构造函数类型`T`返回值（实例）类型。
 
 ### 类型声明
 

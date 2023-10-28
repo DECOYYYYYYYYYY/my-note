@@ -40,7 +40,7 @@
    apt install nginx
    ```
 
-2. 上传前端文件至 `/usr/local/sandpile/frontend` 目录下
+2. 上传前端文件至 `/usr/local/sandpile/html` 目录下
 
 3. 修改配置文件：/etc/nginx/nginx.conf
 
@@ -91,21 +91,9 @@
    
    	server {
            	listen 80;
-           	server_name sandpile.shop,localhost,zfas56dg49zxc465vs4d56fg4s56dfg.shop;
-   		rewrite /(.*) https://sandpile.shop$request_uri permanent;
-   	}
-   	server {
-           	listen 443 ssl;
            	server_name sandpile.shop;
-   		root /usr/local/sandpile/frontend;
+   		root /usr/local/sandpile/html;
    
-   		ssl_certificate "/etc/nginx/ssl/sandpile.shop/fullchain.cer";
-   		ssl_certificate_key "/etc/nginx/ssl/sandpile.shop/sandpile.shop.key";
-   		ssl_session_cache shared:SSL:1m;
-   		ssl_session_timeout  10m;
-   		ssl_ciphers HIGH:!aNULL:!MD5;
-   		ssl_prefer_server_ciphers on;
-   		
    		location / {
                index index.html index.htm;
                try_files $uri $uri/ /index.html; # vue-router history模式适配
@@ -118,7 +106,7 @@
    	}
    }
    ```
-
+   
 4. 开启Nginx
 
    ```shell
@@ -146,9 +134,45 @@
    # 拷贝证书（一定要用该命令进行拷贝，否则证书无法自动更新）
    acme.sh --install-cert -d sandpile.shop --key-file /etc/nginx/ssl/sandpile.shop/sandpile.shop.key --fullchain-file /etc/nginx/ssl/sandpile.shop/fullchain.cer --reloadcmd "service nginx force-reload"
    
+   # 按照第6步更新nginx配置
+   
    # 重启nginx
    service nginx reload
    ```
+   
+6. 部署HTTPS证书后，nginx.conf的server部分需更改为
+
+   ```conf
+   	server {
+           	listen 80;
+           	server_name sandpile.shop,localhost,zfas56dg49zxc465vs4d56fg4s56dfg.shop;
+   		rewrite /(.*) https://sandpile.shop$request_uri permanent;
+   	}
+   	server {
+           	listen 443 ssl;
+           	server_name sandpile.shop;
+   		root /usr/local/sandpile/html;
+   
+   		ssl_certificate "/etc/nginx/ssl/sandpile.shop/fullchain.cer";
+   		ssl_certificate_key "/etc/nginx/ssl/sandpile.shop/sandpile.shop.key";
+   		ssl_session_cache shared:SSL:1m;
+   		ssl_session_timeout  10m;
+   		ssl_ciphers HIGH:!aNULL:!MD5;
+   		ssl_prefer_server_ciphers on;
+   		
+   		location / {
+               index index.html index.htm;
+               try_files $uri $uri/ /index.html; # vue-router history模式适配
+   		}
+   		
+           	location /api {
+   		    proxy_pass http://127.0.0.1:8080; # 后端地址
+   		}
+   		
+   	}
+   ```
+
+   
 
 
 
@@ -215,6 +239,7 @@
      update user set host='%' where user='root';
      commit;
      GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+     # 最后一条命令可能需要执行两次才能成功
      ```
 
 9. 检查设置是否成功，若root的host参数为%则为成功
@@ -238,11 +263,11 @@
     mysql -u root -p
     mysql> use sandpile;
     mysql> set names 'utf8';  #设定数据库的编码（针对空数据库）
-    mysql> source /usr/local/sandpile/backend/db/sand.sql;  #导入的命令，数据库备份文档的绝对路径
+    mysql> source /usr/local/sandpile/java_server/db/sand.sql;  #导入的命令，数据库备份文档的绝对路径
     mysql> quit;
     ```
     
-11. 修改端口至3307
+11. 修改端口至13307
 
     ```shell
     # 登陆数据库并查看当前开放端口
@@ -253,7 +278,7 @@
     # 修改端口号
     nano /etc/mysql/mysql.conf.d/mysqld.cnf
     # 在[mysqld]节点下增加以下内容
-    port=3307
+    port=13307
     
     # 重启MySQL
     systemctl restart mysql
@@ -297,7 +322,7 @@
 5. 切换工作目录
 
    ```shell
-   cd /usr/local/sandpile/backend
+   cd /usr/local/sandpile/java_server
    ```
 
 6. 上传jar包至该目录，上传配置文件至./config
@@ -312,7 +337,7 @@
    User=root
    Type=simple
    DefaultDependencies=no
-   ExecStart=/bin/bash -l -c "java -jar /usr/local/sandpile/backend/sandpile-1.0-SNAPSHOT.jar --spring.config.location=/usr/local/sandpile/backend/config/application.yml > /usr/local/sandpile/sandpile.log"
+   ExecStart=/bin/bash -l -c "java -jar /usr/local/sandpile/java_server/sandpile-1.0-SNAPSHOT.jar --spring.config.location=/usr/local/sandpile/java_server/config/application.yml > /usr/local/sandpile/sandpile.log"
    SuccessExitStatus=143
    
    [Install]
@@ -382,7 +407,7 @@
    
    # 打开该文件并追加管理员用户
    nano /etc/vsftpd/vsftpd.chroot_list
-   # 追加root
+   # 追加root，文件中输入root并保存
    ```
 
 6. 重启ftp服务

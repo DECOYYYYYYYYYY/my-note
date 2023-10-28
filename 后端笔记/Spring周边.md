@@ -947,6 +947,7 @@ http.anonymous()
    
            if (path.matches(".*login$")) {
                chain.doFilter(request, response);
+               return;
            }
    
            try {
@@ -968,6 +969,7 @@ http.anonymous()
                        SecurityContextHolder.getContext().setAuthentication(authentication);
                    }
                    chain.doFilter(request, response);
+               	return;
                }
    
            } catch (ResultException e) {

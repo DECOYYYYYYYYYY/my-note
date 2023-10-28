@@ -1193,13 +1193,43 @@ router实例：`new VueRouter({选项})`
 - 全局前置路由守卫：`router.beforeEach( fn(to,from,next){} )` 路由跳转前和初始化时被调用
   - `to` 与 `from` 为目标路由/原路由的路由信息对象
   - 调用`next()`进行跳转
+  
+- 全局解析组件：`router.beforeResolve( fn(to,from,next){} )`：组件被解析之后调用
+
 - 全局后置路由守卫：`router.afterEach( fn(to,from){} )` 路由跳转后和初始化时被调用
-- 导航路由守卫：在routes选项中添加`beforeEnter: fn(to,from,next){}` 没有后置守卫
+
+- 独享（导航）路由守卫：在routes选项中添加`beforeEnter: fn(to,from,next){}` 没有后置守卫
+
 - 组件内路由守卫：组件实例化时传入选项
   - `beforeRouteEnter(to,from,next){}` 进入前，不能获取this
   - `beforeRouteUpdate(to,from,next){}` 路由变更但组件被复用时
   - `beforeRouteLeave(to,from,next){}` 离开前
-- 路由守卫执行顺序为：`beforeEach` → `beforeEnter` → `beforeRouterEnter`
+  
+- 路由守卫执行顺序为：`beforeEach` → `beforeEnter` → `beforeRouteEnter`
+
+  > 1.导航被触发。
+  >
+  > 2.在失活的组件里调用离开守卫。
+  >
+  > 3.调用全局的 beforeEach 守卫。
+  >
+  > 4.在重用的组件里调用 beforeRouteUpdate 守卫（2.2+）。
+  >
+  > 5.在路由配置里调用 beforeEnter。
+  >
+  > 6.解析异步路由组件。
+  >
+  > 7.在被激活的组件里调用 beforeRouteEnter。
+  >
+  > 8.调用全局的 beforeResolve 守卫（2.5+）。
+  >
+  > 9.导航被确认。
+  >
+  > 10.调用全局的 afterEach 钩子。
+  >
+  > 11.触发 DOM 更新。
+  >
+  > 12.用创建好的实例调用 beforeRouteEnter 守卫中传给 next 的回调函数。
 
 ### Vue Test Utils
 

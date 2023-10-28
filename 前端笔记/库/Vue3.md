@@ -1496,6 +1496,28 @@ store实例：是一个响应式对象
 
 重置state为初始值：`store实例.$reset()`
 
+- 以函数式定义的store实例无法使用 `$reset` 方法，解决方法：
+
+  ```ts
+  // storeReset.ts
+  import { cloneDeep } from 'lodash-es';
+  import type { PiniaPluginContext } from 'pinia';
+  
+  export default function storeReset({ store }: PiniaPluginContext) {
+      const initialState = cloneDeep(store.$state);
+      store.$reset = () => store.$patch(initialState);
+  }
+  
+  // main.ts
+  import storeReset from '@/plugins/storeReset';
+  
+  const pinia = createPinia();
+  pinia.use(storeReset);
+  app.use(pinia);
+  ```
+
+  
+
 
 
 选项式API映射：`...mapState(defineStore的返回值, 数组或对象)` 该方法也可映射getter
@@ -1585,7 +1607,7 @@ ts类型支持：
 - 插件类型标注：
 
   ```ts
-  import { PiniaPluginContext } from 'pinia'
+  import type { PiniaPluginContext } from 'pinia'
   
   export function myPiniaPlugin(context: PiniaPluginContext) {}
   ```

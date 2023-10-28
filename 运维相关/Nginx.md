@@ -406,8 +406,8 @@ ngx_http_gzip_module模块的相关指令：
     - no-store - 启用压缩，如果header头中包含 "Cache-Control:no-store" 头信息
     - private - 启用压缩，如果header头中包含 "Cache-Control:private" 头信息
     - no_last_modified - 启用压缩，如果header头中不包含 "Last-Modified" 头信息
-    - no_etag - 启用压缩 ,如果header头中不包含 "ETag" 头信息
-    - auth - 启用压缩 , 如果header头中包含 "Authorization" 头信息
+    - no_etag - 启用压缩，如果header头中不包含 "ETag" 头信息
+    - auth - 启用压缩，如果header头中包含 "Authorization" 头信息
     - any - 无条件启用压缩
 
 
@@ -461,10 +461,10 @@ ngx_http_gzip_static_module模块的相关指令：
 
   ```
   # 把 /app/hello 转发为 http://localhost:8080/hello
-  location /app/ { proxy_pass http://localhost:8080/; } 
+  location /app/ { proxy_pass http://localhost:8080/; }
   
   # 把 /app/hello 转发为 http://localhost:8080/app/hello
-  location /app { proxy_pass http://localhost:8080; } 
+  location /app { proxy_pass http://localhost:8080; }
   ```
 
 
@@ -502,7 +502,7 @@ ngx_http_gzip_static_module模块的相关指令：
 
 > 以下指令需安装ngx_stream_ssl_module模块，可用于stream和server块中
 >
-> 设置以下指令前，需为listen中的端口号后追加ssl关键字，如`listen 443 ssl;`
+> 设置以下指令前，需为listen中的端口号后追加ssl关键字，如 `listen 443 ssl;`
 
 示例：
 
