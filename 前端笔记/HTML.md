@@ -1,6 +1,6 @@
 # HTML
 
-对于cdn引用的标签，添加crossorigin="anonymous"属性，在想url发送请求时将不携带当前域名的cookie
+对于cdn引用的标签，添加crossorigin="anonymous"属性，在想url发送请求时将不携带当前域名的cookie 
 
 
 
