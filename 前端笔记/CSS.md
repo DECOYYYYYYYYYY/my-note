@@ -996,3 +996,45 @@ focus-visible选择器，表示键盘伪类焦点选择器，在规范中定义�
 这样盒子就不会被撑开，但是内容会溢出，给弹性元素再添加overflow: hidden;
 
 还有一点，上层的每一个盒子都需要有高度，不然还是会被撑开
+
+### width从0到auto的过渡
+
+```css
+<body>
+  <div class="wrapper">
+    <div class="list">
+      <p>当鼠标悬浮在该元素上的时候，高度从0变为自适应</p>
+      <p>当鼠标悬浮在该元素上的时候，高度从0变为自适应</p>
+      <p>当鼠标悬浮在该元素上的时候，高度从0变为自适应</p>
+    </div>
+  </div>
+  <style>
+    .wrapper {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: all 0.5s ease;
+      background-color: pink;
+      padding: 30px;
+    }
+    .list {
+      overflow: hidden;
+    }
+    .wrapper:hover {
+      grid-template-rows: 1fr;
+    }
+  </style>
+</body>
+```
+
+### width从auto到指定值的过渡
+
+```css
+.a {
+  width: auto;
+	min-width: 0;
+  transition: min-width .3s ;
+}
+.a:hover {
+	min-width: 100%;
+}
+```

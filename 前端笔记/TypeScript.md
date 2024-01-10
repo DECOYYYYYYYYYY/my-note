@@ -28,9 +28,13 @@
   1. 尖括号语法：`<string>value`
   2. `as`语法：`value as string`（在ts中使用JSX时，只能使用as语法）
 
-### 其他类型
+### 内置复杂类型
 
+- `Array<T>`（鸭子类型：`ArrayLike<T>` ）
 - `ReadonlyArray<T>`：只读数组，与`Array<T>`相似，但数组创建后再也不能被修改
+- `Promise<T>`：Promise类型，T为Promise成功时的值，（鸭子类型：`PromiseLike<T>` ）
+
+
 
 ### 自动类型推断
 
@@ -131,12 +135,43 @@ x = y;
 ## 操作符
 
 - `typeof 值` 取值的类型。若值为类名，则取其构造函数的类型
+- `keyof 可索引类型`：获取类型的所有可用索引类型的联合类型
 - `xx as xx` 将左侧类型断言为右侧类型
+
   - `对象/数组 as const` 在类型中固定属性值及其类型，转换所有属性为只读 
 - `类型A extends 类型B`
+
   - 用于class：继承
   - 用于接口/泛型：继承/扩展类型
   - 用于代码块：条件类型。若A可以分配给B，返回true
+
+- `类型表达式 ? 类型1 : 类型2`：类型表达式只有`A extends B`可用
+
+- `infer P`：作为临时占位的类型，在该操作符所在语句运算获得结果时，将该处的类型赋值给P在后续使用
+
+  ```ts
+  type numberPromise = Promise<number>;
+  type n = numberPromise extends Promise<infer P> ? P : never; // number
+  ```
+
+- rest参数：用于参数列表，表示剩余参数的联合类型
+
+  ```ts
+  type a = [1, 2, ...rest: number[]]
+  function fn(a: number, ...rest: string[]) {}
+  // 联合infer使用
+  type First<T extends any[]> = T extends [infer A, ...infer rest] ? A : never
+  ```
+
+- 交叉类型：表示值包含了所需的所有类型的特性。`类型1 & 类型2`
+
+- 联合类型：表示值是几种类型之一。`类型1 | 类型2`
+
+- 解构运算符：`...T` 对元组类型使用，生成参数列表
+
+  
+  
+  
 
 ## 接口
 
@@ -863,6 +898,12 @@ type Record<K extends string | number | symbol, T> = {
 
 - `Readonly<T>`：将对象T的所有属性转为只读
 
+  - 自定义解除只读条件类型：
+
+    ```ts
+    type Writeable<T> = { -readonly [P in keyof T]: T[P] };
+    ```
+
 - `Partial<T>`：将对象T的所有属性转为可选
 
 - `Required<T>`：将对象T的所有属性转为必选
@@ -874,6 +915,8 @@ type Record<K extends string | number | symbol, T> = {
 - `Exclude<T, U>`：从`T`中剔除可以赋值给`U`的类型
 
   ```ts
+  type Exclude<T, U> = T extends U ? never : T;
+  
   type A = number | string | boolean
   type B = number | boolean
   
@@ -922,6 +965,8 @@ type Record<K extends string | number | symbol, T> = {
 - `ReturnType<T>`：获取函数类型`T`返回值类型。
 
 - `InstanceType<T>`：获取构造函数类型`T`返回值（实例）类型。
+
+- `Awaited<T>`：获取Promise类型`T`成功时的值类型
 
 ### 类型声明
 
